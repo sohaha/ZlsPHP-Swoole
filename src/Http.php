@@ -86,12 +86,11 @@ class Http
         $error = $exception->getMessage();
         $config = \Z::config();
         ini_set('display_errors', true);
-        if($exception instanceof \Zls_Exception){
-             $loggerWriters = $config->getLoggerWriters();
-        foreach ($loggerWriters as $loggerWriter) {
-      
-            $loggerWriter->write($exception);
-        }
+        if ($exception instanceof \Zls_Exception) {
+            $loggerWriters = $config->getLoggerWriters();
+            foreach ($loggerWriters as $loggerWriter) {
+                $loggerWriter->write($exception);
+            }
         }
    
         $isZlsException = \method_exists($exception, 'render');
