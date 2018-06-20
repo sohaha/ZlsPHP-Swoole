@@ -25,7 +25,7 @@ class Swoole extends \Zls\Command\Command
  
         $this->printStrN($SwooleMain->reload());
     }
-        public function restart()
+    public function restart()
     {
         $SwooleMain = z::extension('Swoole\Main');
  
