@@ -2,7 +2,7 @@
 
 namespace Zls\Swoole;
 
-/**
+/*
  * Zls
  * @author        影浅
  * @email         seekwe@gmail.com
@@ -16,7 +16,7 @@ use Z;
 class WebSocket
 {
     /**
-     * @var \Business\Swoole\WebSocker $BusinessSwooleWebSocker
+     * @var \Business\Swoole\WebSocker
      */
     private $BusinessSwooleWebSocker;
 
@@ -35,18 +35,20 @@ class WebSocket
     }
 
     /**
-     * 执行控制器API
+     * 执行控制器API.
+     *
      * @param $controller
      * @param $method
+     *
      * @return string
      */
     private function getController($controller, $method)
     {
-        $controllerObject = Z::factory(\Zls::getConfig()->getControllerDirName() . '_' . $controller);
+        $controllerObject = Z::factory(\Zls::getConfig()->getControllerDirName().'_'.$controller);
         if (method_exists($controllerObject, 'before')) {
             $controllerObject->before($method, $controller);
         }
-        $_method = \Zls::getConfig()->getMethodPrefix() . $method;
+        $_method = \Zls::getConfig()->getMethodPrefix().$method;
         $content = $controllerObject->$_method();
 
         return $this->json($content, $controller, $method);

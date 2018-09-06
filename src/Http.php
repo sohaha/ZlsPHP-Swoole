@@ -2,7 +2,7 @@
 
 namespace Zls\Swoole;
 
-/**
+/*
  * Zls
  * @author        影浅
  * @email         seekwe@gmail.com
@@ -16,10 +16,12 @@ use Zls;
 
 class Http
 {
+    /** @noinspection PhpUndefinedClassInspection */
     /**
      * @param \swoole_http_request  $request
      * @param \swoole_http_response $response
      * @param null                  $_config
+     *
      * @return string
      */
     public function onRequest(\swoole_http_request $request, \swoole_http_response $response, $_config = null)
@@ -31,7 +33,9 @@ class Http
             return $response;
         });
         //赋值全局变量使其兼容
+        /** @noinspection PhpUndefinedFieldInspection */
         $_SERVER = $request->server;
+        /** @noinspection PhpUndefinedFieldInspection */
         $_HEADER = $request->header;
         $_GET = isset($request->get) ? $request->get : [];
         $_POST = isset($request->post) ? $request->post : [];
@@ -50,13 +54,16 @@ class Http
         );
         $_SERVER['HTTP_X_FORWARDED_FOR'] = z::arrayGet($_HEADER, 'x-forwarded-for');
         $_SERVER['HTTP_USER_AGENT'] = z::arrayGet($_HEADER, 'user-agent');
+        /** @noinspection PhpUndefinedMethodInspection */
         $_SERVER['ZLS_POSTRAW'] = $request->rawContent();
         $pathInfo = z::arrayGet($_SERVER, 'path_info');
         $_SERVER['PATH_INFO'] = $pathInfo;
         $_SESSION = [];
+        /** @noinspection PhpUndefinedMethodInspection */
         $config->setApplicationDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
-        if (z::arrayGet($_GET, '_reload') === '1') {
-            echo("重载\n");
+        if ('1' === z::arrayGet($_GET, '_reload')) {
+            echo "重载\n";
+            /** @noinspection PhpUndefinedMethodInspection */
             z::swoole()->reload();
         }
         ob_start();
@@ -92,7 +99,7 @@ class Http
                 $loggerWriter->write($exception);
             }
         }
-   
+
         $isZlsException = \method_exists($exception, 'render');
         if ($config->getShowError()) {
             //自定义异常处理
@@ -105,17 +112,6 @@ class Http
             }
             //}
         }
-        //elseif (Z::isCli() && !Z::isSwoole()) {
-        //    $error = $exception->render();
-        //} else {
-        //    $path = [
-        //        $config->getApplicationDir() . $config->getViewsDirName() . '/error/' . $exception->getErrorCode() . '.php',
-        //        $config->getPrimaryApplicationDir() . $config->getViewsDirName() . $exception->getErrorCode() . '.php',
-        //    ];
-        //    if (file_exists($file = $path[0]) || file_exists($file = $path[1])) {
-        //        $error = Z::view()->loadRaw($file, [], true);
-        //    }
-        //}
         return $error;
     }
 
