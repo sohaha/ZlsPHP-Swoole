@@ -13,7 +13,8 @@ class Swoole extends \Zls\Command\Command
             if (method_exists($this, $active)) {
                 $this->$active($args);
             } else {
-                $this->error('Warning: unknown method');
+                //$this->error('Warning: unknown method');
+                $this->help($args);
             }
         } else {
             $this->error("Warning: swoole not found !\nPlease install: https://wiki.swoole.com/wiki/page/6.html");
@@ -24,11 +25,7 @@ class Swoole extends \Zls\Command\Command
     {
         $force = Z::arrayGet($args, ['-force', 'F']);
         $file = ZLS_APP_PATH.'config/default/swoole.php';
-        $originFile = Z::realPath(
-            __DIR__.'/../Config/swoole.php',
-            false,
-                                  false
-        );
+        $originFile = Z::realPath(__DIR__.'/../Config/swoole.php', false, false);
         $this->copyFile(
             $originFile,
             $file,
@@ -45,38 +42,24 @@ class Swoole extends \Zls\Command\Command
         );
     }
 
-    public function reload()
-    {
-        /**
-         * @var \Zls\Swoole\Main
-         */
-        $SwooleMain = z::extension('Swoole\Main');
-        $this->printStrN($SwooleMain->reload());
-    }
-
     public function stop()
     {
-        /**
-         * @var \Zls\Swoole\Main
-         */
+        /** @var \Zls\Swoole\Main $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
-        $this->printStr($SwooleMain->stop());
+        $SwooleMain->stop();
     }
 
     public function restart()
     {
-        /**
-         * @var \Zls\Swoole\Main
-         */
+        /** @var \Zls\Swoole\Main $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
-        $this->printStrN($SwooleMain->restart());
+        $SwooleMain->stop();
+        $SwooleMain->start();
     }
 
-    public function serve()
+    public function start()
     {
-        /**
-         * @var \Zls\Swoole\Main
-         */
+        /** @var \Zls\Swoole\Main $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->start();
     }
@@ -90,11 +73,7 @@ class Swoole extends \Zls\Command\Command
     {
     }
 
-    /**
-     * 命令介绍.
-     *
-     * @return string
-     */
+
     public function description()
     {
         return 'Start Swolole';
@@ -103,9 +82,10 @@ class Swoole extends \Zls\Command\Command
     public function commands()
     {
         return [
-            ' init' => 'Initialize Swoole configuration',
-            ' serve' => 'Start the swoole server',
+            ' init' => 'Publish Swoole configuration',
+            ' start' => 'Start the swoole server',
             ' stop' => 'Stop the swoole server',
+            ' restart' => 'Restart the swolle service',
         ];
     }
 }
