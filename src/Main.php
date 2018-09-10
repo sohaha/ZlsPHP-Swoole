@@ -48,7 +48,7 @@ class Main
                 sleep(1);
             }
         }
-        $this->printLog('done.', 'green');
+        $this->printLog('Done.', 'green');
     }
 
     public function printLog($msg, $color = '')
@@ -93,7 +93,7 @@ class Main
             $enableWebSocker = z::config('swoole.enable_websocker') ?: 0;
             self::$notify = (false !== z::config('swoole.watch')) && extension_loaded('inotify');
             if (!$enableWebSocker && !$enableHttp) {
-                echo 'warning: enable_http or enable_websocker must open one !';
+                $this->printLog('enable_http or enable_websocker must open one!', 'yellow');
                 die;
             }
             $httpFn = function ($host, $port, $config, $server) {

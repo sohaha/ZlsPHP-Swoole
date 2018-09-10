@@ -3,6 +3,7 @@ return [
     'host' => '0.0.0.0',
     'port' => 8080,
     'enable_websocker' => 0,
+    'watch' => true,// 监听文件变化热重启，生产环境建议关闭
     // 配置选项 https://wiki.swoole.com/wiki/page/274.html
     'set_properties' => [
         'enable_static_handler' => true,
