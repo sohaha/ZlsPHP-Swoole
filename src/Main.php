@@ -98,8 +98,8 @@ class Main
             }
             $httpFn = function ($host, $port, $config, $server) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                $config->setZMethods('swooleBootstrap', function ($applicationdir) {
-                    $this->bootstrap($applicationdir);
+                $config->setZMethods('swooleBootstrap', function ($appdir) {
+                    $this->bootstrap($appdir);
                 });
                 /** @var \Zls\Swoole\Http $http */
                 $http = z::factory('Zls\Swoole\Http');
@@ -166,9 +166,9 @@ class Main
         }
     }
 
-    private function bootstrap($applicationdir)
+    private function bootstrap($appdir)
     {
-        if (file_exists($bootstrap = $applicationdir.'bootstrap.php')) {
+        if (file_exists($bootstrap = $appdir.'bootstrap.php')) {
             include $bootstrap;
         }
     }
