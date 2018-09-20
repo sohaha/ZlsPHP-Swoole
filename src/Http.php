@@ -52,7 +52,7 @@ class Http
         $_SERVER['PATH_INFO'] = $pathInfo;
         $_SESSION = [];
         /** @noinspection PhpUndefinedMethodInspection */
-        $config->setApplicationDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
+        $config->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
         if ('1' === z::arrayGet($_GET, '_reload')) {
             echo "重载\n";
             /** @noinspection PhpUndefinedMethodInspection */
