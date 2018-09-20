@@ -7,7 +7,7 @@ return [
     // 配置选项 https://wiki.swoole.com/wiki/page/274.html
     'set_properties' => [
         'enable_static_handler' => true,
-        'log_file' => ZLS_PATH.'/../swoole.log',
+        'log_file' => Z::config()->getStorageDirPath().'swoole.log',
         //'heartbeat_idle_time'      => 600,
         //'heartbeat_check_interval' => 60,
         //'worker_num'               => 2,
