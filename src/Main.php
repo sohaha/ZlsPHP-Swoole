@@ -25,7 +25,7 @@ class Main
 
     public function __construct()
     {
-        self::$pidFile = z::config()->getStorageDirPath().'/swooleServer.pid1';
+        self::$pidFile = z::config()->getStorageDirPath().'/swooleServer.pid';
         $this->initColor();
     }
 

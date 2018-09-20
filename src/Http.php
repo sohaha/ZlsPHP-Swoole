@@ -11,6 +11,7 @@ namespace Zls\Swoole;
  * @since         v0.0.1
  * @updatetime    2017-08-28 18:07
  */
+
 use Z;
 use Zls;
 
@@ -21,7 +22,6 @@ class Http
      * @param \swoole_http_request  $request
      * @param \swoole_http_response $response
      * @param null                  $_config
-     *
      * @return string
      */
     public function onRequest(\swoole_http_request $request, \swoole_http_response $response, $_config = null)
@@ -72,6 +72,8 @@ class Http
             } else {
                 echo $this->exceptionHandle($e);
             }
+        } catch (\Error $e) {
+            echo $this->exceptionHandle(new \Zls_Exception_500($e->getMessage(), 500, 'Error', $e->getFile(), $e->getLine()));
         }
         $content = ob_get_contents();
         ob_end_clean();
@@ -91,7 +93,6 @@ class Http
                 $loggerWriter->write($exception);
             }
         }
-
         $isZlsException = \method_exists($exception, 'render');
         if ($config->getShowError()) {
             //自定义异常处理
@@ -104,6 +105,7 @@ class Http
             }
             //}
         }
+
         return $error;
     }
 
