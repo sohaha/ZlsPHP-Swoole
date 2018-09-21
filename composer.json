@@ -1,6 +1,6 @@
 {
   "name": "zls/swoole",
-  "description": "",
+  "description": "ZlsPHP Swoole模式",
   "type": "library",
   "license": "MIT",
   "minimum-stability": "dev",

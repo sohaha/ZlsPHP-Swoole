@@ -74,48 +74,54 @@ class Main
 
     public function start()
     {
-        /** @noinspection PhpUndefinedClassInspection */
-        /** @noinspection PhpUndefinedNamespaceInspection */
-        \Swoole\Runtime::enableCoroutine();
+        /** @var \Zls_Config $zlsConfig */
+        $zlsConfig = z::config();
+        if ($zlsConfig->find('swoole')) {
+            $config = z::config('swoole');
+        } else {
+            $config = include __DIR__.'/Config/swoole.php';
+        }
+        if (z::arrayGet($config, 'enable_coroutine')) {
+            /** @noinspection PhpUndefinedClassInspection */
+            /** @noinspection PhpUndefinedNamespaceInspection */
+            \Swoole\Runtime::enableCoroutine();
+        }
         if (!$this->existProcess()) {
-
             $lines = [
                 '**********************************************************',
                 '                    Information Panel                     ',
                 '**********************************************************',
             ];
-            /** @var \Zls_Config $config */
-            $config = z::config();
-            $host = z::config('swoole.host');
-            $port = z::config('swoole.port');
-            $setProperties = z::config('swoole.set_properties');
-            $enableHttp = z::config('swoole.enable_http') ?: 1;
-            $enableWebSocker = z::config('swoole.enable_websocker') ?: 0;
-            self::$notify = (false !== z::config('swoole.watch')) && extension_loaded('inotify');
+            $host = z::arrayGet($config, 'host');
+            $port = z::arrayGet($config, 'port');
+            $setProperties = z::arrayGet($config, 'set_properties', []);
+            $enableHttp = z::arrayGet($config, 'enable_http', true);
+            $enableWebSocker = z::arrayGet($config, 'enable_websocker', false);
+            self::$notify = (false !== z::arrayGet($config, 'watch')) && extension_loaded('inotify');
             if (!$enableWebSocker && !$enableHttp) {
                 $this->printLog('enable_http or enable_websocker must open one!', 'yellow');
                 die;
             }
-            $httpFn = function ($host, $port, $config, $server) {
+            $httpFn = function ($host, $port, $server) use ($zlsConfig, $config) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                $config->setZMethods('swooleBootstrap', function ($appdir) {
+                $zlsConfig->setZMethods('swooleBootstrap', function ($appdir) {
                     $this->bootstrap($appdir);
                 });
                 /** @var \Zls\Swoole\Http $http */
                 $http = z::factory('Zls\Swoole\Http');
-                $server->on('request', function ($request, $response) use ($config, $server, $http) {
+                $server->on('request', function ($request, $response) use ($zlsConfig, $config, $server, $http) {
                     $ignore = ['/robots.txt', '/favicon.ico'];
                     if (in_array(strtolower(z::arrayGet($request->server, 'path_info')), $ignore, true)) {
                         $response->end();
                     } else {
-                        $content = $http->onRequest($request, $response, $config);
+                        $content = $http->onRequest($request, $response, $zlsConfig, $config);
                         if ((bool)$content) {
                             $response->write($content);
                         }
                         $response->end();
                     }
                 });
-                $server->on('close', function ($server, $fd, $reactorId) use ($config, $http) {
+                $server->on('close', function ($server, $fd, $reactorId) use ($zlsConfig, $http) {
                     $http->onClose($server, $fd, $reactorId);
                 });
 
@@ -133,14 +139,14 @@ class Main
                 $server->on('finish', [$WebSocketClient, 'finish']);
                 $server->on('close', [$WebSocketClient, 'close']);
                 if ($enableHttp) {
-                    $lines[] = $httpFn($host, $port, $config, $server);
+                    $lines[] = $httpFn($host, $port, $server);
                 }
             } else {
                 /** @noinspection PhpUndefinedClassInspection */
                 $server = new \swoole_http_server($host, $port);
-                $lines[] = $httpFn($host, $port, $config, $server);
+                $lines[] = $httpFn($host, $port, $server);
             }
-            $config->setZMethods('swoole', function () use ($server) {
+            $zlsConfig->setZMethods('swoole', function () use ($server) {
                 return $server;
             });
             $server->on('Start', function () {
@@ -158,7 +164,7 @@ class Main
             $server->set(['pid_file' => self::$pidFile] + $setProperties);
             $lines[] = '**********************************************************';
             $line = implode("\n", $lines);
-            echo $line."\n";
+            echo $line.PHP_EOL;
             self::$server = $server;
             $server->start();
         } else {
@@ -169,6 +175,7 @@ class Main
     private function bootstrap($appdir)
     {
         if (file_exists($bootstrap = $appdir.'bootstrap.php')) {
+            /** @noinspection PhpIncludeInspection */
             include $bootstrap;
         }
     }
@@ -206,7 +213,7 @@ class Main
                 Z::command('kill -USR1 '.$pid, '', false, false);
             }
             /** @noinspection PhpUndefinedMethodInspection */
-            //self::$server && self::$server->reload();
+            /**self::$server && self::$server->reload(); */
         });
     }
 

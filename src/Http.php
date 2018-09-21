@@ -21,13 +21,12 @@ class Http
     /**
      * @param \swoole_http_request  $request
      * @param \swoole_http_response $response
-     * @param null                  $_config
+     * @param \Zls_Config           $zlsConfig
+     * @param array                 $config
      * @return string
      */
-    public function onRequest(\swoole_http_request $request, \swoole_http_response $response, $_config = null)
+    public function onRequest(\swoole_http_request $request, \swoole_http_response $response, $zlsConfig, $config = [])
     {
-        /** @var \Zls_Config $config */
-        $config = Z::config();
         z::resetZls();
         z::di()->bind('SwooleResponse', function () use ($response) {
             return $response;
@@ -52,8 +51,8 @@ class Http
         $_SERVER['PATH_INFO'] = $pathInfo;
         $_SESSION = [];
         /** @noinspection PhpUndefinedMethodInspection */
-        $config->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
-        if ('1' === z::arrayGet($_GET, '_reload')) {
+        $zlsConfig->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
+        if (z::arrayGet($config, 'watch') && '1' === z::arrayGet($_GET, '_reload')) {
             echo "重载\n";
             /** @noinspection PhpUndefinedMethodInspection */
             z::swoole()->reload();
@@ -61,10 +60,10 @@ class Http
         ob_start();
         try {
             //开启session
-            if (z::arrayGet($config->getSessionConfig(), 'autostart')) {
+            if (z::arrayGet($zlsConfig->getSessionConfig(), 'autostart')) {
                 z::sessionStart();
             }
-            $config->bootstrap();
+            $zlsConfig->bootstrap();
             Zls::runWeb();
         } catch (\Exception $e) {
             if (0 == $e->getCode()) {
