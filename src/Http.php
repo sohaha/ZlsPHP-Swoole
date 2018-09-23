@@ -17,7 +17,9 @@ use Zls;
 
 class Http
 {
-    /** @noinspection PhpUndefinedClassInspection */
+
+    use Utils;
+
     /**
      * @param \swoole_http_request  $request
      * @param \swoole_http_response $response
@@ -31,7 +33,6 @@ class Http
         z::di()->bind('SwooleResponse', function () use ($response) {
             return $response;
         });
-        //赋值全局变量使其兼容
         /** @noinspection PhpUndefinedFieldInspection */
         $_SERVER = $request->server;
         /** @noinspection PhpUndefinedFieldInspection */
@@ -53,7 +54,7 @@ class Http
         /** @noinspection PhpUndefinedMethodInspection */
         $zlsConfig->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
         if (z::arrayGet($config, 'watch') && '1' === z::arrayGet($_GET, '_reload')) {
-            echo "重载\n";
+            $this->printLog('重载文件');
             /** @noinspection PhpUndefinedMethodInspection */
             z::swoole()->reload();
         }

@@ -12,7 +12,6 @@ namespace Zls\Swoole;
 
 use swoole_process;
 use Z;
-use Zls\Command\Utils;
 
 class Main
 {
@@ -25,7 +24,7 @@ class Main
 
     public function __construct()
     {
-        self::$pidFile = z::config()->getStorageDirPath().'/swooleServer.pid';
+        self::$pidFile = z::realPathMkdir(z::config()->getStorageDirPath(), true, false, false).'swooleServer.pid';
         $this->initColor();
     }
 
@@ -51,12 +50,6 @@ class Main
         $this->printLog('Done.', 'green');
     }
 
-    public function printLog($msg, $color = '')
-    {
-        $this->printStr('[ Swoole ]', 'blue', '');
-        $this->printStr(': ');
-        $this->printStrN(' '.$msg, $color);
-    }
 
     protected function existProcess()
     {
@@ -87,11 +80,7 @@ class Main
             \Swoole\Runtime::enableCoroutine();
         }
         if (!$this->existProcess()) {
-            $lines = [
-                '**********************************************************',
-                '                    Information Panel                     ',
-                '**********************************************************',
-            ];
+            $lines = [];
             $host = z::arrayGet($config, 'host');
             $port = z::arrayGet($config, 'port');
             $setProperties = z::arrayGet($config, 'set_properties', []);
@@ -124,11 +113,13 @@ class Main
                 $server->on('close', function ($server, $fd, $reactorId) use ($zlsConfig, $http) {
                     $http->onClose($server, $fd, $reactorId);
                 });
+                $url = 'http://'.($host === '0.0.0.0' ? '127.0.0.1' : $host).':'.$port;
 
-                return '* Web    | Host : '.$host.', port: '.$port.', Enable  : 1';
+                return $this->printStr('[ Swoole Web ]', 'blue', '').': '.$url;
             };
             if ($enableWebSocker) {
-                $lines[] = '* Socket | IP   : '.$host.', port: '.$port.', OutTime : '.z::arrayGet($setProperties, 'heartbeat_check_interval', '-');
+                $ws = 'ws://'.($host === '0.0.0.0' ? '127.0.0.1' : $host).':'.$port;
+                $lines[] = $this->printStr('[ Swoole Socker ]', 'blue', '').': '.$ws.'  OutTime: '.z::arrayGet($setProperties, 'heartbeat_check_interval', '-');
                 /** @noinspection PhpUndefinedClassInspection */
                 $server = new \swoole_websocket_server($host, $port);
                 /** @var \Zls\Swoole\WebSocket $WebSocketClient */
@@ -162,7 +153,6 @@ class Main
             ];
             $setProperties = $setProperties ? array_merge($defaultProperties, $setProperties) : $defaultProperties;
             $server->set(['pid_file' => self::$pidFile] + $setProperties);
-            $lines[] = '**********************************************************';
             $line = implode("\n", $lines);
             echo $line.PHP_EOL;
             self::$server = $server;
