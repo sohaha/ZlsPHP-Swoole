@@ -1,6 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Zls\Swoole;
+
+use Z;
+use Zls;
 
 /*
  * Zls
@@ -12,22 +15,20 @@ namespace Zls\Swoole;
  * @updatetime    2017-08-28 18:07
  */
 
-use Z;
-use Zls;
-
 class Http
 {
-
     use Utils;
 
     /**
+     * @noinspection PhpUndefinedClassInspection
      * @param \swoole_http_request  $request
      * @param \swoole_http_response $response
      * @param \Zls_Config           $zlsConfig
      * @param array                 $config
      * @return string
+     * @throws \Exception
      */
-    public function onRequest(\swoole_http_request $request, \swoole_http_response $response, $zlsConfig, $config = [])
+    public function onRequest($request, $response, $zlsConfig, $config = [])
     {
         z::resetZls();
         z::di()->bind('SwooleResponse', function () use ($response) {
@@ -82,28 +83,27 @@ class Http
         return $content ?: ' ';
     }
 
+    /**
+     * @param \Exception $exception
+     * @return mixed|string
+     * @throws \Exception
+     */
     public function exceptionHandle(\Exception $exception)
     {
         $error = $exception->getMessage();
         $config = \Z::config();
-        ini_set('display_errors', true);
+        ini_set('display_errors', '1');
         if ($exception instanceof \Zls_Exception) {
             $loggerWriters = $config->getLoggerWriters();
+            /** @var \Zls_Logger $loggerWriter */
             foreach ($loggerWriters as $loggerWriter) {
                 $loggerWriter->write($exception);
             }
-        }
-        $isZlsException = \method_exists($exception, 'render');
-        if ($config->getShowError()) {
-            //自定义异常处理
-            //$handle = $config->getExceptionHandle();
-            //if ($handle instanceof \Zls_Exception_Handle) {
-            //    $error = $handle->handle($exception);
-            //} else {
-            if ($isZlsException) {
+            if ($config->getShowError()) {
                 $error = $exception->render(false, true);
             }
-            //}
+        } else {
+            $error = '';
         }
 
         return $error;
