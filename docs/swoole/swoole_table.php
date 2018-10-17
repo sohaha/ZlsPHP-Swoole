@@ -2,7 +2,7 @@
 /**
  * Swoole_table Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_table implements \Iterator,\Traversable,\ArrayAccess,\Countable {
 

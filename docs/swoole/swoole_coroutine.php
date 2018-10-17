@@ -2,7 +2,7 @@
 /**
  * Swoole_coroutine Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_coroutine {
 

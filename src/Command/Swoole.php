@@ -57,6 +57,19 @@ class Swoole extends \Zls\Command\Command
         $SwooleMain->start();
     }
 
+    public function kill()
+    {
+        /** @var \Zls\Swoole\Main $SwooleMain */
+        $SwooleMain = z::extension('Swoole\Main');
+        $SwooleMain->kill();
+    }
+    public function status()
+    {
+        /** @var \Zls\Swoole\Main $SwooleMain */
+        $SwooleMain = z::extension('Swoole\Main');
+        $SwooleMain->status();
+    }
+
     public function start()
     {
         /** @var \Zls\Swoole\Main $SwooleMain */

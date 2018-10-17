@@ -20,15 +20,15 @@ class Http
     use Utils;
 
     /**
-     * @noinspection PhpUndefinedClassInspection
      * @param \swoole_http_request  $request
      * @param \swoole_http_response $response
+     * @param \swoole_server        $server
      * @param \Zls_Config           $zlsConfig
      * @param array                 $config
      * @return string
      * @throws \Exception
      */
-    public function onRequest($request, $response, $zlsConfig, $config = [])
+    public function onRequest($request, $response, $server, $zlsConfig, $config = [])
     {
         z::resetZls();
         z::di()->bind('SwooleResponse', function () use ($response) {
@@ -47,7 +47,7 @@ class Http
         $_SERVER['REMOTE_ADDR'] = z::arrayGet($_SERVER, 'remote_addr', z::arrayGet($_HEADER, 'remote_addr', z::arrayGet($_HEADER, 'x-real-ip')));
         $_SERVER['HTTP_X_FORWARDED_FOR'] = z::arrayGet($_HEADER, 'x-forwarded-for');
         $_SERVER['HTTP_USER_AGENT'] = z::arrayGet($_HEADER, 'user-agent');
-        /** @noinspection PhpUndefinedMethodInspection */
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $_SERVER['ZLS_POSTRAW'] = $request->rawContent();
         $pathInfo = z::arrayGet($_SERVER, 'path_info');
         $_SERVER['PATH_INFO'] = $pathInfo;
@@ -56,31 +56,34 @@ class Http
         $zlsConfig->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
         if (z::arrayGet($config, 'watch') && '1' === z::arrayGet($_GET, '_reload')) {
             $this->printLog('重载文件');
-            /** @noinspection PhpUndefinedMethodInspection */
-            z::swoole()->reload();
+            $server->reload();
         }
         ob_start();
         try {
-            //开启session
             if (z::arrayGet($zlsConfig->getSessionConfig(), 'autostart')) {
                 z::sessionStart();
             }
             $zlsConfig->bootstrap();
             Zls::runWeb();
+        } catch (SwooleHandler $e) {
+            echo $this->showError($e->getMessage());
         } catch (\Exception $e) {
-            if (0 == $e->getCode()) {
-                echo $e->getMessage();
-            } else {
-                echo $this->exceptionHandle($e);
-            }
+            $err = (0 == $e->getCode()) ? $e->getMessage() : $this->exceptionHandle($e);
+            echo $this->showError($err);
         } catch (\Error $e) {
-            echo $this->exceptionHandle(new \Zls_Exception_500($e->getMessage(), 500, 'Error', $e->getFile(), $e->getLine()));
+            $exception = new \Zls_Exception_500($e->getMessage(), 500, 'Error', $e->getFile(), $e->getLine());
+            echo $this->showError($this->exceptionHandle($exception));
         }
         $content = ob_get_contents();
         ob_end_clean();
-        z::di()->remove('SwooleResponse');
+        z::resetZls();
 
         return $content ?: ' ';
+    }
+
+    private function showError($err = '')
+    {
+        return Z::config()->getShowError() ? $err : '';
     }
 
     /**
@@ -91,26 +94,22 @@ class Http
     public function exceptionHandle(\Exception $exception)
     {
         $error = $exception->getMessage();
-        $config = \Z::config();
+        $config = Z::config();
         ini_set('display_errors', '1');
-        if ($exception instanceof \Zls_Exception) {
-            $loggerWriters = $config->getLoggerWriters();
-            /** @var \Zls_Logger $loggerWriter */
-            foreach ($loggerWriters as $loggerWriter) {
-                $loggerWriter->write($exception);
+        try {
+            if ($exception instanceof \Zls_Exception) {
+                $loggerWriters = $config->getLoggerWriters();
+                /** @var \Zls_Logger $loggerWriter */
+                foreach ($loggerWriters as $loggerWriter) {
+                    $loggerWriter->write($exception);
+                }
+                $error = $exception->render(null, true);
             }
-            if ($config->getShowError()) {
-                $error = $exception->render(false, true);
-            }
-        } else {
-            $error = '';
+        } catch (\Exception $e) {
+            $AppendError = ' (log processing failed. ' . $e->getMessage() . ')';
+            $error = $error . $AppendError;
         }
 
         return $error;
-    }
-
-    public function onClose($server, $fd, $reactorId)
-    {
-        Z::di()->remove('SwooleResponse');
     }
 }

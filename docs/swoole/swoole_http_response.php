@@ -2,7 +2,7 @@
 /**
  * Swoole_http_response Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_http_response {
 

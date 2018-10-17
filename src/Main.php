@@ -3,23 +3,23 @@
 namespace Zls\Swoole;
 
 /*
- * Zls
+ * Swoole
  * @author        影浅
  * @email         seekwe@gmail.com
  * @copyright     Copyright (c) 2015 - 2017, 影浅, Inc.
  * @updatetime    2018-09-07 15:40:18
  */
 
-use ReflectionClass;
 use ReflectionMethod;
 use swoole_http_server;
 use swoole_process;
+use swoole_websocket_server;
 use Z;
 
 class Main
 {
     use Utils;
-    public $client  = [];
+    public $client = [];
     public $hotLoad = false;
     public $config;
     public $sessionFile;
@@ -33,24 +33,13 @@ class Main
         $this->initColor();
     }
 
-    public function stop()
+    public function kill(): void
     {
-        $this->printLog('Stoping...', 'dark_gray');
+        $this->printLog('Kill...', 'dark_gray');
         if ($pid = $this->existProcess()) {
-            swoole_process::kill($pid);
-            $time = 5;
-            $status = true;
-            while ($status) {
-                --$time;
-                $pid = $this->existProcess();
-                if (!$pid) {
-                    $status = false;
-                } elseif (!$time) {
-                    $status = false;
-                    $this->printLog('stop failure, please try again!', 'red');
-                }
-                sleep(1);
-            }
+            preg_match_all('/\d+/', Z::command("pstree -p {$pid}"), $pids);
+            $pids = join(' ', $pids[0]);
+            Z::command("kill -9 {$pids}", '', true, false);
         }
         $this->printLog('Done.', 'green');
     }
@@ -63,74 +52,69 @@ class Main
                 /** @noinspection PhpVoidFunctionResultUsedInspection */
                 $pid = swoole_process::kill($pid, 0) ? $pid : 0;
             } else {
-                unlink($this->pidFile);
+                @unlink($this->pidFile);
             }
         }
 
         return $pid;
     }
 
-    /**
-     * @throws \ReflectionException
-     */
-    public function start()
+    public function stop(): void
+    {
+        $this->printLog('Stoping...', 'dark_gray');
+        if ($pid = $this->existProcess()) {
+            swoole_process::kill($pid);
+            $time   = time() + 15;
+            $status = true;
+            while ($status) {
+                $pid = $this->existProcess();
+                if (!$pid) {
+                    $status = false;
+                } elseif (time() >= $time) {
+                    $status = false;
+                    $this->printLog('pid: ' . $pid . ', stop failure, please try again!', 'red');
+                }
+            }
+        }
+        $this->printLog('Done.', 'green');
+    }
+
+    public function status(): void
+    {
+        if ($pid = $this->existProcess()) {
+            $this->printLog("swoole is running, PID : {$pid}.");
+        } else {
+            $this->printLog('swoole is not running');
+        }
+    }
+
+    public function start(): void
     {
         /** @var \Zls_Config $zlsConfig */
         $zlsConfig = z::config();
-        if ($zlsConfig->find('swoole')) {
-            $this->config = z::config('swoole');
-        } else {
-            $this->config = include __DIR__ . '/Config/swoole.php';
-        }
-        if (z::arrayGet($this->config, 'enable_coroutine')) {
-            /** @noinspection PhpUndefinedClassInspection */
-            /** @noinspection PhpUndefinedNamespaceInspection */
-            \Swoole\Runtime::enableCoroutine();
-        }
+        $this->config($zlsConfig);
         if (!$this->existProcess()) {
-            $lines = [];
-            $host = z::arrayGet($this->config, 'host');
-            $port = (int)z::arrayGet($this->config, 'port');
+            $lines         = [];
+            $host          = z::arrayGet($this->config, 'host');
+            $port          = (int)z::arrayGet($this->config, 'port');
             $setProperties = z::arrayGet($this->config, 'set_properties', []);
-            $enableHttp = z::arrayGet($this->config, 'enable_http', true);
+            if ($enableHttp = z::arrayGet($this->config, 'enable_http', true)) {
+                $this->setSession();
+            }
+            if (z::arrayGet($this->config, 'enable_coroutine')) {
+                \Swoole\Runtime::enableCoroutine();
+                $this->setDbPool();
+            }
             $enableWebSocker = z::arrayGet($this->config, 'enable_websocker', false);
-            $this->hotLoad = (false !== z::arrayGet($this->config, 'watch')) && extension_loaded('inotify');
+            $this->hotLoad   = (false !== z::arrayGet($this->config, 'watch')) && extension_loaded('inotify');
             if (!$enableWebSocker && !$enableHttp) {
                 $this->printLog('enable_http or enable_websocker must open one!', 'yellow');
                 die;
             }
-            $httpFn = function ($host, $port, $server) use ($zlsConfig) {
-                /** @var \swoole_server $server */
-                $zlsConfig->setZMethods('swooleBootstrap', function ($appdir) {
-                    $this->bootstrap($appdir);
-                });
-                /** @var \Zls\Swoole\Http $http */
-                $http = z::factory('Zls\Swoole\Http');
-                $server->on('request', function ($request, $response) use ($zlsConfig, $server, $http) {
-                    /** @var \swoole_http_response $response */
-                    $ignore = ['/robots.txt', '/favicon.ico'];
-                    if (in_array(strtolower(z::arrayGet($request->server, 'path_info')), $ignore, true)) {
-                        $response->end();
-                    } else {
-                        $content = $http->onRequest($request, $response, $zlsConfig, $this->config);
-                        if ((bool)$content) {
-                            $response->write($content);
-                        }
-                        $response->end();
-                    }
-                });
-                $server->on('close', function ($server, $fd, $reactorId) use ($zlsConfig, $http) {
-                    $http->onClose($server, $fd, $reactorId);
-                });
-                $url = 'http://' . ($host === '0.0.0.0' ? '127.0.0.1' : $host) . ':' . $port;
-
-                return $this->printStr('[ Swoole Web ]', 'blue', '') . ': ' . $url;
-            };
             if ($enableWebSocker) {
-                $ws = 'ws://' . ($host === '0.0.0.0' ? '127.0.0.1' : $host) . ':' . $port;
+                $ws      = 'ws://' . ($host === '0.0.0.0' ? '127.0.0.1' : $host) . ':' . $port;
                 $lines[] = $this->printStr('[ Swoole Socker ]', 'blue', '') . ': ' . $ws . '  OutTime: ' . z::arrayGet($setProperties, 'heartbeat_check_interval', '-');
-                /** @noinspection PhpUndefinedClassInspection */
-                $server = new \swoole_websocket_server($host, $port);
+                $server  = new swoole_websocket_server($host, $port);
                 /** @var \Zls\Swoole\WebSocket $WebSocketClient */
                 $WebSocketClient = z::factory('Zls\Swoole\WebSocket');
                 $server->on('open', [$WebSocketClient, 'open']);
@@ -139,21 +123,23 @@ class Main
                 $server->on('finish', [$WebSocketClient, 'finish']);
                 $server->on('close', [$WebSocketClient, 'close']);
                 if ($enableHttp) {
-                    $lines[] = $httpFn($host, $port, $server);
+                    $lines[] = $this->webService($host, $port, $server, $zlsConfig);
                 }
             } else {
-                $server = new swoole_http_server($host, $port);
-                $lines[] = $httpFn($host, $port, $server);
+                $server  = new swoole_http_server($host, $port);
+                $lines[] = $this->webService($host, $port, $server, $zlsConfig);
             }
-            $zlsConfig->setZMethods('swoole', $server);
             $this->server = $server;
+            $zlsConfig->setZMethods('swoole', function () {
+                return $this->server;
+            });
             $this->BindingEvent();
             $defaultProperties = [
                 //'pname' => 'swoole_zls',
-                'document_root' => ZLS_PATH,
+                'document_root'         => ZLS_PATH,
                 'enable_static_handler' => true,
             ];
-            $setProperties = $setProperties ? array_merge($defaultProperties, $setProperties) : $defaultProperties;
+            $setProperties     = $setProperties ? array_merge($defaultProperties, $setProperties) : $defaultProperties;
             $server->set(['pid_file' => $this->pidFile] + $setProperties);
             if ($process = $this->getProcess()) {
                 foreach ($process as $p) {
@@ -168,6 +154,66 @@ class Main
         }
     }
 
+    private function config(\Zls_Config $zlsConfig): void
+    {
+        if ($zlsConfig->find('swoole')) {
+            $this->config = z::config('swoole');
+        } else {
+            $this->config = include __DIR__ . '/Config/swoole.php';
+        }
+    }
+
+    private function setSession(): void
+    {
+        /** @var \Zls_Config $zlsConfig */
+        $zlsConfig     = z::config();
+        $sessionConfig = $zlsConfig->getSessionConfig();
+        $sessionState  = z::arrayGet($sessionConfig, 'autostart');
+        $fileSession   = 'Zls\Session\File';
+        /** @var \Zls\Session\File $SessionHandle */
+        if ($sessionState && !$SessionHandle = $zlsConfig->getSessionHandle()) {
+            $SessionHandle = new $fileSession;
+            $zlsConfig->setSessionHandle($SessionHandle);
+        }
+    }
+
+    private function setDbPool(): void
+    {
+        $this->log('启动连接池');
+        $pool = new Pool();
+    }
+
+    public function log(...$_)
+    {
+        z::log($_, 'swoole');
+    }
+
+    private function webService($host, $port, $server, \Zls_Config $zlsConfig): string
+    {
+        /** @var \swoole_server $server */
+        $zlsConfig->setZMethods('swooleBootstrap', function ($appdir) {
+            $this->bootstrap($appdir);
+        });
+        /** @var \Zls\Swoole\Http $http */
+        $http = z::factory('Zls\Swoole\Http');
+        $server->on('request', function ($request, $response) use ($zlsConfig, $server, $http) {
+            /** @var \swoole_http_response $response */
+            $ignore = ['/robots.txt', '/favicon.ico'];
+            if (in_array(strtolower(z::arrayGet($request->server, 'path_info')), $ignore, true)) {
+                $response->end();
+            } else {
+                $content = $http->onRequest($request, $response, $server, $zlsConfig, $this->config);
+                if ((bool)$content) {
+                    $response->write($content);
+                }
+                $response->end();
+            }
+        });
+        $url = 'http://' . ($host === '0.0.0.0' ? '127.0.0.1' : $host) . ':' . $port;
+
+        return $this->printStr('[ Swoole Web ]', 'blue', '') . ': ' . $url;
+    }
+
     private function bootstrap(string $appdir): void
     {
         if (file_exists($bootstrap = $appdir . 'bootstrap.php')) {
@@ -178,21 +224,26 @@ class Main
 
     /**
      * 绑定事件回调
-     * @throws \ReflectionException
+     * @param string $prefix
      * @url https://wiki.swoole.com/wiki/page/41.html
      */
-    private function BindingEvent()
+    private function BindingEvent($prefix = 'on'): void
     {
-        $EventClass = new ReflectionClass('Zls\Swoole\Event');
-        $EventMethods = $EventClass->getMethods(ReflectionMethod::IS_PUBLIC);
-        /** @var \Zls\Swoole\Event $EventInstance */
-        $EventInstance = $EventClass->newInstance($this);
-        Z::arrayMap($EventMethods, function ($v) use ($EventInstance) {
-            $name = z::arrayGet((array)$v, 'name');
-            if (Z::strBeginsWith($name, 'on')) {
-                $this->server->on(substr($name, 2), [$EventInstance, $name]);
-            }
-        });
+        try {
+            $EventClass   = new \ReflectionClass('Zls\Swoole\Event');
+            $EventMethods = $EventClass->getMethods(ReflectionMethod::IS_PUBLIC);
+            /** @var \Zls\Swoole\Event $EventInstance */
+            $EventInstance = $EventClass->newInstance($this);
+            Z::arrayMap($EventMethods, function ($v) use ($EventInstance, $prefix) {
+                $name = z::arrayGet((array)$v, 'name');
+                if (Z::strBeginsWith($name, $prefix)) {
+                    $this->server->on(substr($name, strlen($prefix)), [$EventInstance, $name]);
+                }
+            });
+        } catch (\ReflectionException $e) {
+            echo $e->getMessage() . PHP_EOL;
+            die;
+        }
     }
 
     private function getProcess(): array

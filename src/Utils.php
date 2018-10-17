@@ -2,6 +2,8 @@
 
 namespace Zls\Swoole;
 
+use z;
+use Zls;
 use Zls\Command\Utils as CommandUtils;
 
 /**
@@ -22,5 +24,18 @@ trait Utils
         $this->printStr('[ Swoole ]', 'blue', '');
         $this->printStr(': ');
         $this->printStrN($msg, $color);
+    }
+
+    public function reset()
+    {
+        /** @var \Zls_Config $config */
+        $config = Z::config();
+        Zls::$loadedModules = [];
+        if ($config->getCacheConfig()) {
+            Z::cache()->reset();
+        }
+        Z::clearDb();
+        Z::di()->remove();
+        \Zls_Logger_Dispatcher::setMemReverse();
     }
 }

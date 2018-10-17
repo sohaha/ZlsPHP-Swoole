@@ -2,7 +2,7 @@
 /**
  * Swoole_connection_iterator Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_connection_iterator implements \Iterator,\Traversable,\ArrayAccess,\Countable {
 

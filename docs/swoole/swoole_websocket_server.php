@@ -2,7 +2,7 @@
 /**
  * Swoole_websocket_server Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_websocket_server extends \Swoole\Http\Server {
 

@@ -2,7 +2,7 @@
 /**
  * swoole functions
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 function swoole_version() {}
 function swoole_cpu_num() {}

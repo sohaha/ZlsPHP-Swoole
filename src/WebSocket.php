@@ -15,14 +15,8 @@ use Z;
 
 class WebSocket
 {
-    /**
-     * @var \Business\Swoole\WebSocker
-     */
-    private $BusinessSwooleWebSocker;
-
     public function __construct()
     {
-        $this->BusinessSwooleWebSocker = z::business('Swoole\WebSocker');
     }
 
     /**
@@ -31,7 +25,6 @@ class WebSocket
      */
     public function __call($name, $arguments)
     {
-        $this->BusinessSwooleWebSocker->$name(...$arguments);
     }
 
     /**

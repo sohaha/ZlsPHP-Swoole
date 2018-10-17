@@ -2,7 +2,7 @@
 /**
  * Swoole_redis_server Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_redis_server extends \Swoole\Server {
 

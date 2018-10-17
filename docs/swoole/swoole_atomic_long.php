@@ -2,7 +2,7 @@
 /**
  * Swoole_atomic_long Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_atomic_long {
 

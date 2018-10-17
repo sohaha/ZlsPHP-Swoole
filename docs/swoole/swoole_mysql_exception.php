@@ -2,7 +2,7 @@
 /**
  * Swoole_mysql_exception Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_mysql_exception extends \Exception implements \Throwable {
 

@@ -2,7 +2,7 @@
 /**
  * Swoole_mmap Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_mmap {
 

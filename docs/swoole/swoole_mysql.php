@@ -2,7 +2,7 @@
 /**
  * Swoole_mysql Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_mysql {
 
@@ -30,6 +30,7 @@ public function connect($server_config, $callback) {}
 public function begin($callback) {}
 public function commit($callback) {}
 public function rollback($callback) {}
+public function escape($string, $flags = null) {}
 public function query($sql, $callback) {}
 public function close() {}
 public function getState() {}

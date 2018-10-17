@@ -2,7 +2,7 @@
 /**
  * Swoole_table_row Document
  *
- * @author Leelmes <i@chengxuan.li>
+ * @author seekwe <seekwe@gmail.com>
  */
 class swoole_table_row implements \ArrayAccess {
 
