@@ -35,7 +35,7 @@ class Http
             return $response;
         });
         /** @noinspection PhpUndefinedFieldInspection */
-        $_SERVER = $request->server;
+        $_SERVER = array_change_key_case($request->server,CASE_UPPER);
         /** @noinspection PhpUndefinedFieldInspection */
         $_HEADER = array_change_key_case($request->header,CASE_UPPER);
         $_GET = isset($request->get) ? $request->get : [];
