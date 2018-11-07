@@ -37,19 +37,19 @@ class Http
         /** @noinspection PhpUndefinedFieldInspection */
         $_SERVER = $request->server;
         /** @noinspection PhpUndefinedFieldInspection */
-        $_HEADER = $request->header;
+        $_HEADER = array_change_key_case($request->header,CASE_UPPER);
         $_GET = isset($request->get) ? $request->get : [];
         $_POST = isset($request->post) ? $request->post : [];
         $_FILES = isset($request->files) ? $request->files : [];
         $_COOKIE = isset($request->cookie) ? $request->cookie : [];
-        $_SERVER['HTTP_ORIGIN'] = z::arrayGet($_HEADER, 'origin');
-        $_SERVER['HTTP_HOST'] = z::arrayGet($_HEADER, 'host');
-        $_SERVER['REMOTE_ADDR'] = z::arrayGet($_SERVER, 'remote_addr', z::arrayGet($_HEADER, 'remote_addr', z::arrayGet($_HEADER, 'x-real-ip')));
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = z::arrayGet($_HEADER, 'x-forwarded-for');
-        $_SERVER['HTTP_USER_AGENT'] = z::arrayGet($_HEADER, 'user-agent');
+        $_SERVER['HTTP_ORIGIN'] = z::arrayGet($_HEADER, 'ORIGIN');
+        $_SERVER['HTTP_HOST'] = z::arrayGet($_HEADER, 'HOST');
+        $_SERVER['REMOTE_ADDR'] = z::arrayGet($_SERVER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'X-REAL-IP')));
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = z::arrayGet($_HEADER, 'X-FORWARDED-FOR');
+        $_SERVER['HTTP_USER_AGENT'] = z::arrayGet($_HEADER, 'USER-AGENT');
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $_SERVER['ZLS_POSTRAW'] = $request->rawContent();
-        $pathInfo = z::arrayGet($_SERVER, 'path_info');
+        $pathInfo = z::arrayGet($_SERVER, 'PATH_INFO');
         $_SERVER['PATH_INFO'] = $pathInfo;
         $_SESSION = [];
         /** @noinspection PhpUndefinedMethodInspection */
