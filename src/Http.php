@@ -43,13 +43,14 @@ class Http
         $_FILES = isset($request->files) ? $request->files : [];
         $_COOKIE = isset($request->cookie) ? $request->cookie : [];
         foreach ($_HEADER as $key => $value) {
-            $_SERVER['HTTP_'.$key]=$value;
+            $_SERVER['HTTP_'.str_replace('-','_',$key)]=$value;
         }
         $_SERVER['REMOTE_ADDR'] = z::arrayGet($_SERVER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'X-REAL-IP')));
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $_SERVER['ZLS_POSTRAW'] = $request->rawContent();
         $pathInfo = z::arrayGet($_SERVER, 'PATH_INFO');
         $_SERVER['PATH_INFO'] = $pathInfo;
+
         $_SESSION = [];
         /** @noinspection PhpUndefinedMethodInspection */
         $zlsConfig->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
@@ -57,7 +58,7 @@ class Http
             $this->printLog('重载文件');
             $server->reload();
         }
-        ob_start();
+        ob_start();   
         try {
             if (z::arrayGet($zlsConfig->getSessionConfig(), 'autostart')) {
                 z::sessionStart();
