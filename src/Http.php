@@ -42,11 +42,10 @@ class Http
         $_POST = isset($request->post) ? $request->post : [];
         $_FILES = isset($request->files) ? $request->files : [];
         $_COOKIE = isset($request->cookie) ? $request->cookie : [];
-        $_SERVER['HTTP_ORIGIN'] = z::arrayGet($_HEADER, 'ORIGIN');
-        $_SERVER['HTTP_HOST'] = z::arrayGet($_HEADER, 'HOST');
+        foreach ($_HEADER as $key => $value) {
+            $_SERVER['HTTP_'.$key]=$value;
+        }
         $_SERVER['REMOTE_ADDR'] = z::arrayGet($_SERVER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'X-REAL-IP')));
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = z::arrayGet($_HEADER, 'X-FORWARDED-FOR');
-        $_SERVER['HTTP_USER_AGENT'] = z::arrayGet($_HEADER, 'USER-AGENT');
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $_SERVER['ZLS_POSTRAW'] = $request->rawContent();
         $pathInfo = z::arrayGet($_SERVER, 'PATH_INFO');
