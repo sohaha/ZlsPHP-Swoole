@@ -2,6 +2,7 @@
 
 namespace Zls\Swoole;
 
+use Swoole\Coroutine as co;
 use Swoole\Coroutine\Channel;
 use Z;
 
@@ -21,11 +22,16 @@ class Coroutine
     private $sum;
     private $outtime;
 
-    public function __construct(int $outtime = 10,int $sum = 1)
+    public function __construct(int $outtime = 10, int $sum = 0)
     {
         // todo 如果非协程模式是否要做兼任处理?
         $this->chan = new Channel($sum);
         $this->outtime = $outtime;
+    }
+
+    public function sleep($time)
+    {
+        co::sleep($time);
     }
 
     public function run(string $name, callable $cb): void
@@ -35,7 +41,7 @@ class Coroutine
             try {
                 $this->chan->push(['name' => $name, 'data' => $cb()]);
             } catch (\Error | \Exception $e) {
-                z::log(['协程内出错了',$e->getMessage()], 'SwooleError');
+                z::log(['协程内出错了', $e->getMessage()], 'SwooleError');
                 $this->chan->push(['name' => $name, 'data' => false, 'err' => $e]);
             }
         });
