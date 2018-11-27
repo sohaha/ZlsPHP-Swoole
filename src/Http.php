@@ -35,30 +35,29 @@ class Http
             return $response;
         });
         /** @noinspection PhpUndefinedFieldInspection */
-        $_SERVER = array_change_key_case($request->server,CASE_UPPER);
+        $_SERVER = array_change_key_case($request->server, CASE_UPPER);
         /** @noinspection PhpUndefinedFieldInspection */
-        $_HEADER = array_change_key_case($request->header,CASE_UPPER);
-        $_GET = isset($request->get) ? $request->get : [];
-        $_POST = isset($request->post) ? $request->post : [];
-        $_FILES = isset($request->files) ? $request->files : [];
+        $_HEADER = array_change_key_case($request->header, CASE_UPPER);
+        $_GET    = isset($request->get) ? $request->get : [];
+        $_POST   = isset($request->post) ? $request->post : [];
+        $_FILES  = isset($request->files) ? $request->files : [];
         $_COOKIE = isset($request->cookie) ? $request->cookie : [];
         foreach ($_HEADER as $key => $value) {
-            $_SERVER['HTTP_'.str_replace('-','_',$key)]=$value;
+            $_SERVER['HTTP_' . str_replace('-', '_', $key)] = $value;
         }
         $_SERVER['REMOTE_ADDR'] = z::arrayGet($_SERVER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'X-REAL-IP')));
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $_SERVER['ZLS_POSTRAW'] = $request->rawContent();
-        $pathInfo = z::arrayGet($_SERVER, 'PATH_INFO');
-        $_SERVER['PATH_INFO'] = $pathInfo;
-
-        $_SESSION = [];
+        $pathInfo               = z::arrayGet($_SERVER, 'PATH_INFO');
+        $_SERVER['PATH_INFO']   = $pathInfo;
+        $_SESSION               = [];
         /** @noinspection PhpUndefinedMethodInspection */
         $zlsConfig->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
         if (z::arrayGet($config, 'watch') && '1' === z::arrayGet($_GET, '_reload')) {
             $this->printLog('重载文件');
             $server->reload();
         }
-        ob_start();   
+        ob_start();
         try {
             if (z::arrayGet($zlsConfig->getSessionConfig(), 'autostart')) {
                 z::sessionStart();
@@ -66,13 +65,13 @@ class Http
             $zlsConfig->bootstrap();
             Zls::runWeb();
         } catch (SwooleHandler $e) {
-            echo $this->showError($e->getMessage());
+            echo $e->getMessage();
         } catch (\Exception $e) {
             $err = (0 == $e->getCode()) ? $e->getMessage() : $this->exceptionHandle($e);
             echo $this->showError($err);
         } catch (\Error $e) {
             $exception = new \Zls_Exception_500($e->getMessage(), 500, 'Error', $e->getFile(), $e->getLine());
-            echo $this->showError($this->exceptionHandle($exception));
+            echo $this->exceptionHandle($exception);
         }
         $content = ob_get_contents();
         ob_end_clean();
@@ -93,7 +92,7 @@ class Http
      */
     public function exceptionHandle(\Exception $exception)
     {
-        $error = $exception->getMessage();
+        $error  = $exception->getMessage();
         $config = Z::config();
         ini_set('display_errors', '1');
         try {
@@ -103,11 +102,19 @@ class Http
                 foreach ($loggerWriters as $loggerWriter) {
                     $loggerWriter->write($exception);
                 }
-                $error = $exception->render(null, true);
+                $handle = $config->getExceptionHandle();
+                if ($config->getShowError() || $handle) {
+                    if ($handle instanceof \Zls_Exception_Handle) {
+                        $error = $handle->handle($exception);
+                    } else {
+                        $error = $exception->render(null, true);
+                    }
+                } else {
+                    $error = '';
+                }
             }
         } catch (\Exception $e) {
-            $AppendError = ' (log processing failed. ' . $e->getMessage() . ')';
-            $error = $error . $AppendError;
+            $error = $e->getMessage();
         }
 
         return $error;

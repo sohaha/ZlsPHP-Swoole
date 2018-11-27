@@ -242,7 +242,7 @@ class Main
             });
         } catch (\ReflectionException $e) {
             echo $e->getMessage() . PHP_EOL;
-            die;
+            z::end();
         }
     }
 
