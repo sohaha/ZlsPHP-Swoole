@@ -237,12 +237,20 @@ class Main
             Z::arrayMap($EventMethods, function ($v) use ($EventInstance, $prefix) {
                 $name = z::arrayGet((array)$v, 'name');
                 if (Z::strBeginsWith($name, $prefix)) {
-                    $this->server->on(substr($name, strlen($prefix)), [$EventInstance, $name]);
+                    $this->server->on(substr($name, strlen($prefix)), function (...$e) use ($EventInstance, $name) {
+                        try {
+                            return $EventInstance->$name(...$e);
+                        } catch (\Exception $e) {
+                            echo $e->getMessage();
+
+                            return false;
+                        }
+                    });
                 }
             });
         } catch (\ReflectionException $e) {
             echo $e->getMessage() . PHP_EOL;
-            z::end();
+            die;
         }
     }
 

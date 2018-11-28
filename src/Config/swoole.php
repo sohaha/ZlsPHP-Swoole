@@ -3,6 +3,7 @@ $swoole = z::config('ini.swoole', true, []);
 
 return [
     'host'             => z::arrayGet($swoole, 'host', '0.0.0.0'),
+    // http服务器端口
     'port'             => z::arrayGet($swoole, 'port', 8080),
     // 开启协程
     'enable_coroutine' => false,
@@ -11,7 +12,7 @@ return [
     // 开启http服务器
     'enable_http'      => z::arrayGet($swoole, 'http', true),
     // 监听文件变化并热重启，生产环境建议关闭
-    'watch'            => z::arrayGet($swoole, 'debug', true),
+    'watch'            => z::arrayGet($swoole, 'debug', false),
     // 配置选项 https://wiki.swoole.com/wiki/page/274.html
     'set_properties'   => [
         // 守护模式

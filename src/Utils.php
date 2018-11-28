@@ -1,4 +1,4 @@
-<?php
+<?php declare (strict_types=1);
 
 namespace Zls\Swoole;
 
@@ -34,7 +34,8 @@ trait Utils
         if ($config->getCacheConfig()) {
             Z::cache()->reset();
         }
-        Z::clearDb();
+        //todo 要回收数据库
+        //Z::clearDb();
         Z::di()->remove();
         \Zls_Logger_Dispatcher::setMemReverse();
     }

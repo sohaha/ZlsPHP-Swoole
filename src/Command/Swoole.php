@@ -80,7 +80,7 @@ class Swoole extends \Zls\Command\Command
 
     public function options()
     {
-        return ['--force, -F' => ' Overwrite old config file'];
+        return [];
     }
 
     public function example()
@@ -96,10 +96,10 @@ class Swoole extends \Zls\Command\Command
     public function commands()
     {
         return [
-            ' init'    => 'Publish Swoole configuration',
+            ' init'    => ['Publish Swoole configuration',['--force, -F' => ' Overwrite old config file']],
             ' start'   => 'Start the swoole server',
             ' stop'    => 'Stop the swoole server',
-            ' restart' => 'Restart the swolle service',
+            ' restart' => ['Restart the swolle service'],
         ];
     }
 }

@@ -9,9 +9,7 @@ use Z;
  * @author        影浅
  * @email         seekwe@gmail.com
  * @copyright     Copyright (c) 2015 - 2017, 影浅, Inc.
- * @link          ---
- * @since         v0.0.1
- * @updatetime    2017-08-28 18:07
+ * @updatetime    2018-11-28 19:21:01
  */
 
 class Event
@@ -29,13 +27,7 @@ class Event
     public function onWorkerStart($ws, $workerId): void
     {
         if ($workerId === 0) {
-            try {
-                $this->inotify();
-            } catch (\Exception $e) {
-                $errCode = swoole_last_error();
-                $errMsg  = $e->getMessage() . ' [' . swoole_strerror($errCode) . ']';
-                echo $errMsg . PHP_EOL;
-            }
+            $this->inotify();
             //$this->sessionGc();
         }
     }
@@ -43,36 +35,43 @@ class Event
     private function inotify(): void
     {
         if ($this->main->hotLoad) {
-            $rootPath     = z::realPath(ZLS_APP_PATH, true);
-            $config       = z::config();
-            $ignoreFolder = [
-                $config->getStorageDirPath(),
-            ];
-            $paths        = z::scanFile($rootPath, 99, function ($v, $filename) use ($rootPath, $ignoreFolder) {
-                $path = $rootPath . $filename;
+            try {
+                $rootPath     = z::realPath(ZLS_APP_PATH, true);
+                $config       = z::config();
+                $ignoreFolder = [
+                    $config->getStorageDirPath(),
+                ];
+                $paths        = z::scanFile($rootPath, 99, function ($v, $filename) use ($rootPath, $ignoreFolder) {
+                    $path = $rootPath . $filename;
 
-                return !in_array(z::realPath($path, true), $ignoreFolder, true) && is_dir($rootPath . $filename);
-            });
-            $files        = [];
-            $this->forPath($files, $paths, $rootPath);
-            /** @noinspection PhpComposerExtensionStubsInspection */
-            $inotify = inotify_init();
-            /** @noinspection PhpComposerExtensionStubsInspection */
-            $mask = 2 | 512 | 256 | 192;
-            foreach ($files as $file) {
+                    return !in_array(z::realPath($path, true), $ignoreFolder, true) && is_dir($rootPath . $filename);
+                });
+                $files        = [];
+                $this->forPath($files, $paths, $rootPath);
                 /** @noinspection PhpComposerExtensionStubsInspection */
-                inotify_add_watch($inotify, $file, $mask);
+                $inotify = inotify_init();
+                /** @noinspection PhpComposerExtensionStubsInspection */
+                $mask = 2 | 512 | 256 | 192;
+                foreach ($files as $file) {
+                    /** @noinspection PhpComposerExtensionStubsInspection */
+                    inotify_add_watch($inotify, $file, $mask);
+                }
+                swoole_event_add($inotify, function ($ifd) use ($inotify) {
+                    /** @noinspection PhpComposerExtensionStubsInspection */
+                    $events = inotify_read($inotify);
+                    if (!$events) {
+                        return;
+                    }
+                    if ($pid = $this->main->existProcess()) {
+                        Z::command('kill -USR1 ' . $pid, '', false, false);
+                        echo '[' . date('y-m-d H:i:s') . '] reload' . PHP_EOL;
+                    }
+                });
+            } catch (\Exception $e) {
+                $errCode = swoole_last_error();
+                $errMsg  = $e->getMessage() . ' [' . swoole_strerror($errCode) . ']';
+                echo '[' . date('y-m-d H:i:s') . '] ' . $errMsg . PHP_EOL;
             }
-            swoole_event_add($inotify, function ($ifd) use ($inotify) {
-                /** @noinspection PhpComposerExtensionStubsInspection */
-                $events = inotify_read($inotify);
-                if (!$events) {
-                    return;
-                }
-                if ($pid = $this->main->existProcess()) {
-                    Z::command('kill -USR1 ' . $pid, '', false, false);
-                }
-            });
         }
     }
 
