@@ -16,7 +16,6 @@ class Response
      * body 服务器发送的响应包体
      * statusCode 服务器发送的Http状态码，如200、502等
      */
-
     public $errCode = 0;
     public $statusCode = 0;
     public $body = '';

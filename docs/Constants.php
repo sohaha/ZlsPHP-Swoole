@@ -1,5 +1,4 @@
 <?php
-
 define('SWOOLE_BASE', 4);
 define('SWOOLE_THREAD', 2);
 define('SWOOLE_PROCESS', 3);

@@ -29,7 +29,7 @@ trait Utils
     public function reset()
     {
         /** @var \Zls_Config $config */
-        $config = Z::config();
+        $config             = Z::config();
         Zls::$loadedModules = [];
         if ($config->getCacheConfig()) {
             Z::cache()->reset();

@@ -1,9 +1,9 @@
 <?php
 
 namespace Swoole\Http;
+
 /**
  * Class swoole_http_server
- *
  *  内置 Web 服务器
  */
 class Server extends \swoole_server

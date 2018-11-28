@@ -11,6 +11,7 @@ namespace Zls\Swoole;
  * @since         v0.0.1
  * @updatetime    2018-01-29 14:13
  */
+
 use Z;
 
 class WebSocket
@@ -29,19 +30,17 @@ class WebSocket
 
     /**
      * 执行控制器API.
-     *
      * @param $controller
      * @param $method
-     *
      * @return string
      */
     private function getController($controller, $method)
     {
-        $controllerObject = Z::factory(\Zls::getConfig()->getControllerDirName().'_'.$controller);
+        $controllerObject = Z::factory(\Zls::getConfig()->getControllerDirName() . '_' . $controller);
         if (method_exists($controllerObject, 'before')) {
             $controllerObject->before($method, $controller);
         }
-        $_method = \Zls::getConfig()->getMethodPrefix().$method;
+        $_method = \Zls::getConfig()->getMethodPrefix() . $method;
         $content = $controllerObject->$_method();
 
         return $this->json($content, $controller, $method);

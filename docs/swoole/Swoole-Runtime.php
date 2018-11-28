@@ -1,13 +1,20 @@
 <?php
 /**
  * Swoole\Runtime Document
- *
  * @author seekwe <seekwe@gmail.com>
  */
+
 namespace Swoole;
-class Runtime {
+
+class Runtime
+{
 
 
-static public function enableStrictMode() {}
-static public function enableCoroutine($enable = null, $flags = null) {}
+    static public function enableStrictMode()
+    {
+    }
+
+    static public function enableCoroutine($enable = null, $flags = null)
+    {
+    }
 }

@@ -10,7 +10,7 @@ namespace Swoole\Server;
 class Port
 {
     /**
-     * @param $event_name
+     * @param          $event_name
      * @param callable $callback
      */
     function on($event_name, callable $callback)

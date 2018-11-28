@@ -1,5 +1,7 @@
 <?php
+
 namespace Swoole\Http;
+
 /**
  * Http响应对象
  * Class swoole_http_response
@@ -33,14 +35,13 @@ class Response
 
     /**
      * 设置Cookie
-     *
      * @param string $key
      * @param string $value
-     * @param int $expire
+     * @param int    $expire
      * @param string $path
      * @param string $domain
-     * @param bool $secure
-     * @param bool $httponly
+     * @param bool   $secure
+     * @param bool   $httponly
      */
     public function cookie($key, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false)
     {

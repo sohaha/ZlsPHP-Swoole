@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare (strict_types=1);
 
 namespace Zls\Swoole;
 
@@ -29,7 +29,13 @@ class Event
     public function onWorkerStart($ws, $workerId): void
     {
         if ($workerId === 0) {
-            $this->inotify();
+            try {
+                $this->inotify();
+            } catch (\Exception $e) {
+                $errCode = swoole_last_error();
+                $errMsg  = $e->getMessage() . ' [' . swoole_strerror($errCode) . ']';
+                echo $errMsg . PHP_EOL;
+            }
             //$this->sessionGc();
         }
     }
@@ -42,12 +48,12 @@ class Event
             $ignoreFolder = [
                 $config->getStorageDirPath(),
             ];
-            $paths = z::scanFile($rootPath, 99, function ($v, $filename) use ($rootPath, $ignoreFolder) {
+            $paths        = z::scanFile($rootPath, 99, function ($v, $filename) use ($rootPath, $ignoreFolder) {
                 $path = $rootPath . $filename;
 
                 return !in_array(z::realPath($path, true), $ignoreFolder, true) && is_dir($rootPath . $filename);
             });
-            $files = [];
+            $files        = [];
             $this->forPath($files, $paths, $rootPath);
             /** @noinspection PhpComposerExtensionStubsInspection */
             $inotify = inotify_init();
@@ -57,7 +63,7 @@ class Event
                 /** @noinspection PhpComposerExtensionStubsInspection */
                 inotify_add_watch($inotify, $file, $mask);
             }
-            swoole_event_add((int)$inotify, function ($ifd) use ($inotify) {
+            swoole_event_add($inotify, function ($ifd) use ($inotify) {
                 /** @noinspection PhpComposerExtensionStubsInspection */
                 $events = inotify_read($inotify);
                 if (!$events) {
@@ -101,6 +107,7 @@ class Event
             }
         }
     }
+
     public function onWorkerStop()
     {
         z::log('onWorkerStop', 's');
@@ -112,7 +119,7 @@ class Event
             '是异常进程的编号'          => $worker_id,
             '是异常进程的ID'          => $worker_pid,
             '退出的状态码，范围是 1 ～255' => $exit_code,
-            '进程退出的信号'          => $signal
+            '进程退出的信号'           => $signal,
         ];
         z::log(['onWorkerError', $err], 's');
         // \swoole_process::kill($worker_pid);

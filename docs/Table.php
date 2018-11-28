@@ -7,13 +7,12 @@ namespace Swoole;
  */
 class Table
 {
-    const TYPE_INT    = 1;
+    const TYPE_INT = 1;
     const TYPE_STRING = 2;
-    const TYPE_FLOAT  = 3;
+    const TYPE_FLOAT = 3;
 
     /**
      * 创建内存表对象
-     *
      * @param int $size $size参数指定表格的最大行数，必须为2的指数，如1024,8192,65536等
      */
     public function __construct($size)
@@ -28,7 +27,7 @@ class Table
     function exist($key)
     {
     }
-    
+
     /**
      * 获取key
      * @param $key

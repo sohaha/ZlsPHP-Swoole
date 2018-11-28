@@ -25,7 +25,7 @@ class Coroutine
     public function __construct(int $outtime = 10, int $sum = 0)
     {
         // todo 如果非协程模式是否要做兼任处理?
-        $this->chan = new Channel($sum);
+        $this->chan    = new Channel($sum);
         $this->outtime = $outtime;
     }
 
@@ -55,7 +55,7 @@ class Coroutine
             $res = $this->chan->pop($this->outtime);
             if (Z::arrayKeyExists('err', $res)) {
                 /** @var \Exception $e */
-                $e = $res['err'];
+                $e   = $res['err'];
                 $err = method_exists($e, 'render') ? $e->render() : $e->getMessage();
                 /** @noinspection PhpUnhandledExceptionInspection */
                 throw new SwooleHandler($err, 500);

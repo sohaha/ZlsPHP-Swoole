@@ -5,17 +5,16 @@
  * User: lushuncheng<admin@lushuncheng.com>
  * Date: 2017/3/1
  * Time: 18:17
- * @link https://github.com/lscgzwd
+ * @link      https://github.com/lscgzwd
  * @copyright Copyright (c) 2017 Lu Shun Cheng (https://github.com/lscgzwd)
  * @licence http://www.apache.org/licenses/LICENSE-2.0
- * @author Lu Shun Cheng (lscgzwd@gmail.com)
- *
- *
- * @package Swoole
- * @version 1.0
+ * @author    Lu Shun Cheng (lscgzwd@gmail.com)
+ * @package   Swoole
+ * @version   1.0
  */
 
 namespace Swoole;
+
 /**
  * Class Mysql
  * @package Swoole
@@ -60,7 +59,7 @@ class Mysql
     /**
      * set the event callback, current just support close
      * function callback(\Swoole\Mysql $db){}
-     * @param string $eventName
+     * @param string   $eventName
      * @param callable $callback
      */
     public function on(string $eventName, callable $callback)
@@ -78,7 +77,7 @@ class Mysql
      * );
      * function callback(\Swoole\Mysql $db, bool $result) {
      * }
-     * @param array $config
+     * @param array    $config
      * @param callable $callback
      * @throws \Swoole\Mysql\Exception $e
      */
@@ -105,7 +104,7 @@ class Mysql
      * success:
      * if query result sql, the result is the query result
      * otherwise the result is true, you can use $link->insert_id, $link->affected_rows
-     * @param string $sql
+     * @param string   $sql
      * @param callable $callback
      */
     public function query(string $sql, callable $callback)
@@ -124,6 +123,7 @@ class Mysql
     {
 
     }
+
     /**
      * commit transaction
      * if not exist, then exception
@@ -135,6 +135,7 @@ class Mysql
     {
 
     }
+
     /**
      * rollback transaction
      * if not exist, then exception

@@ -4,7 +4,6 @@ namespace Swoole;
 
 /**
  * Class swoole_atomic
- *
  * woole_atomic是swoole扩展提供的原子计数操作类，可以方便整数的无锁原子增减。
  * swoole_atomic使用共享内存，可以在不同的进程之间操作计数
  * swoole_atomic基于gcc提供的CPU原子指令，无需加锁
@@ -21,7 +20,6 @@ class Atomic
 
     /**
      * 增加计数
-     *
      * @param $add_value
      * @return int
      */
@@ -31,7 +29,6 @@ class Atomic
 
     /**
      * 减少计数
-     *
      * @param $sub_value
      * @return int
      */
@@ -49,7 +46,6 @@ class Atomic
 
     /**
      * 将当前值设置为指定的数字
-     *
      * @param $value
      */
     public function set($value)
@@ -58,7 +54,6 @@ class Atomic
 
     /**
      * 如果当前数值等于参数1，则将当前数值设置为参数2
-     *
      * @param int $cmp_value
      * @param int $set_value
      */

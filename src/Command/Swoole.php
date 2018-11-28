@@ -23,16 +23,16 @@ class Swoole extends \Zls\Command\Command
 
     public function init($args)
     {
-        $force = Z::arrayGet($args, ['-force', 'F']);
-        $file = ZLS_APP_PATH.'config/default/swoole.php';
-        $originFile = Z::realPath(__DIR__.'/../Config/swoole.php', false, false);
+        $force      = Z::arrayGet($args, ['-force', 'F']);
+        $file       = ZLS_APP_PATH . 'config/default/swoole.php';
+        $originFile = Z::realPath(__DIR__ . '/../Config/swoole.php', false, false);
         $this->copyFile(
             $originFile,
             $file,
             $force,
             function ($status) use ($file) {
                 if ($status) {
-                    $this->success('config: '.Z::safePath($file));
+                    $this->success('config: ' . Z::safePath($file));
                     $this->printStr('Please modify according to the situation');
                 } else {
                     $this->error('Profile already exists, or insufficient permissions');
@@ -63,6 +63,7 @@ class Swoole extends \Zls\Command\Command
         $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->kill();
     }
+
     public function status()
     {
         /** @var \Zls\Swoole\Main $SwooleMain */
@@ -95,9 +96,9 @@ class Swoole extends \Zls\Command\Command
     public function commands()
     {
         return [
-            ' init' => 'Publish Swoole configuration',
-            ' start' => 'Start the swoole server',
-            ' stop' => 'Stop the swoole server',
+            ' init'    => 'Publish Swoole configuration',
+            ' start'   => 'Start the swoole server',
+            ' stop'    => 'Stop the swoole server',
             ' restart' => 'Restart the swolle service',
         ];
     }
