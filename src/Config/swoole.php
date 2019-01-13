@@ -15,8 +15,6 @@ return [
     'watch'            => z::arrayGet($swoole, 'debug', false),
     // 配置选项 https://wiki.swoole.com/wiki/page/274.html
     'set_properties'   => [
-        // 守护模式
-        'daemonize'             => z::arrayGet($swoole, 'daemonize', true),
         'log_file'              => Z::config()->getStorageDirPath() . 'swoole.log',
         'enable_static_handler' => true,
         'max_wait_time'         => 30,

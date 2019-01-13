@@ -63,7 +63,7 @@ class Event
                         return;
                     }
                     if ($pid = $this->main->existProcess()) {
-                        Z::command('kill -USR1 ' . $pid, '', false, false);
+                        $this->main->reload();
                         echo '[' . date('y-m-d H:i:s') . '] reload' . PHP_EOL;
                     }
                 });

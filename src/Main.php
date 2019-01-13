@@ -88,7 +88,7 @@ class Main
         }
     }
 
-    public function start(): void
+    public function start($args): void
     {
         /** @var \Zls_Config $zlsConfig */
         $zlsConfig = z::config();
@@ -97,6 +97,7 @@ class Main
             $lines         = [];
             $host          = z::arrayGet($this->config, 'host');
             $port          = (int)z::arrayGet($this->config, 'port');
+            $daemonize     = Z::arrayGet($args, ['--daemonize', 'D', 'd'], false);
             $setProperties = z::arrayGet($this->config, 'set_properties', []);
             if ($enableHttp = z::arrayGet($this->config, 'enable_http', true)) {
                 $this->setSession();
@@ -138,8 +139,9 @@ class Main
                 //'pname' => 'swoole_zls',
                 'document_root'         => ZLS_PATH,
                 'enable_static_handler' => true,
+                'daemonize'             => $daemonize,
             ];
-            $setProperties     = $setProperties ? array_merge($defaultProperties, $setProperties) : $defaultProperties;
+            $setProperties     = $setProperties ? array_merge($setProperties, $defaultProperties) : $defaultProperties;
             $server->set(['pid_file' => $this->pidFile] + $setProperties);
             if ($process = $this->getProcess()) {
                 foreach ($process as $p) {
@@ -259,5 +261,15 @@ class Main
         $processes = [];
 
         return $processes;
+    }
+
+    public function reload()
+    {
+        $pid = @file_get_contents($this->pidFile);
+        if (extension_loaded('posix')) {
+            posix_kill((int)$pid, SIGUSR1);
+        } else {
+            Z::command('kill -USR1 ' . $pid, '', false, false);
+        }
     }
 }

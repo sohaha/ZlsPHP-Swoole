@@ -3,6 +3,7 @@
 namespace Zls\Swoole\Command;
 
 use Z;
+use Zls\Swoole\Main;
 
 class Swoole extends \Zls\Command\Command
 {
@@ -71,11 +72,11 @@ class Swoole extends \Zls\Command\Command
         $SwooleMain->status();
     }
 
-    public function start()
+    public function start($args)
     {
         /** @var \Zls\Swoole\Main $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
-        $SwooleMain->start();
+        $SwooleMain->start($args);
     }
 
     public function options()
@@ -87,6 +88,11 @@ class Swoole extends \Zls\Command\Command
     {
     }
 
+    public function reload()
+    {
+        $SwooleMain = new Main();
+        $SwooleMain->reload();
+    }
 
     public function description()
     {
@@ -96,9 +102,10 @@ class Swoole extends \Zls\Command\Command
     public function commands()
     {
         return [
-            ' init'    => ['Publish Swoole configuration',['--force, -F' => ' Overwrite old config file']],
-            ' start'   => 'Start the swoole server',
+            ' init'    => ['Publish Swoole configuration', ['--force, -F' => ' Overwrite old config file']],
+            ' start'   => ['Start the swoole server', ['--daemonize, -d, -D' => 'Whether start as a daemon process']],
             ' stop'    => 'Stop the swoole server',
+            ' reload'  => 'Hot overload file, does not support update configuration file',
             ' restart' => ['Restart the swolle service'],
         ];
     }

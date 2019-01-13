@@ -15,5 +15,6 @@
       "Zls\\Swoole\\": "src/"
     }
   },
-  "require": {}
+  "require": {
+  }
 }
