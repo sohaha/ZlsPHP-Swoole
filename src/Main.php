@@ -1,4 +1,4 @@
-<?php declare (strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Zls\Swoole;
 
@@ -97,7 +97,7 @@ class Main
             $lines         = [];
             $host          = z::arrayGet($this->config, 'host');
             $port          = (int)z::arrayGet($this->config, 'port');
-            $daemonize     = Z::arrayGet($args, ['--daemonize', 'D', 'd'], false);
+            $daemonize     = Z::arrayGet($args, ['--no-daemonize', 'N', 'n'], true);
             $setProperties = z::arrayGet($this->config, 'set_properties', []);
             if ($enableHttp = z::arrayGet($this->config, 'enable_http', true)) {
                 $this->setSession();

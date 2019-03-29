@@ -43,29 +43,29 @@ class Swoole extends \Zls\Command\Command
         );
     }
 
-    public function stop()
+    public function stop($args)
     {
         /** @var \Zls\Swoole\Main $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
-        $SwooleMain->stop();
+        $SwooleMain->stop($args);
     }
 
-    public function restart()
+    public function restart($args)
     {
         /** @var \Zls\Swoole\Main $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
-        $SwooleMain->stop();
-        $SwooleMain->start();
+        $SwooleMain->stop($args);
+        $SwooleMain->start($args);
     }
 
-    public function kill()
+    public function kill($args)
     {
         /** @var \Zls\Swoole\Main $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->kill();
     }
 
-    public function status()
+    public function status($args)
     {
         /** @var \Zls\Swoole\Main $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
@@ -85,8 +85,7 @@ class Swoole extends \Zls\Command\Command
     }
 
     public function example()
-    {
-    }
+    { }
 
     public function reload()
     {
@@ -103,7 +102,7 @@ class Swoole extends \Zls\Command\Command
     {
         return [
             ' init'    => ['Publish Swoole configuration', ['--force, -F' => ' Overwrite old config file']],
-            ' start'   => ['Start the swoole server', ['--daemonize, -d, -D' => 'Whether start as a daemon process']],
+            ' start'   => ['Start the swoole server', ['--no-daemonize, -n, -n' => 'Close Process Daemon']],
             ' stop'    => 'Stop the swoole server',
             ' reload'  => 'Hot overload file, does not support update configuration file',
             ' restart' => ['Restart the swolle service'],
