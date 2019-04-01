@@ -85,7 +85,8 @@ class Swoole extends \Zls\Command\Command
     }
 
     public function example()
-    { }
+    {
+    }
 
     public function reload()
     {

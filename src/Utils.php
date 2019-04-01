@@ -26,17 +26,13 @@ trait Utils
         $this->printStrN($msg, $color);
     }
 
-    public function reset()
+    public function log(...$_)
     {
-        /** @var \Zls_Config $config */
-        $config             = Z::config();
-        Zls::$loadedModules = [];
-        if ($config->getCacheConfig()) {
-            Z::cache()->reset();
-        }
-        //todo 要回收数据库
-        //Z::clearDb();
-        Z::di()->remove();
-        \Zls_Logger_Dispatcher::setMemReverse();
+        z::log($_, 'swoole');
+    }
+
+    public function errorLog(...$_)
+    {
+        z::log($_, 'swoole');
     }
 }

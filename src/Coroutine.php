@@ -17,12 +17,13 @@ use Z;
  */
 class Coroutine
 {
+    use Utils;
     /** @var Channel $chan */
     private $chan;
     private $sum;
     private $outtime;
 
-    public function __construct(int $outtime = 10, int $sum = 0)
+    public function __construct($outtime = 10, $sum = 0)
     {
         // todo 如果非协程模式是否要做兼任处理?
         $this->chan    = new Channel($sum);
@@ -34,14 +35,14 @@ class Coroutine
         co::sleep($time);
     }
 
-    public function run(string $name, callable $cb): void
+    public function run(string $name, callable $cb)
     {
         ++$this->sum;
         go(function () use ($name, $cb) {
             try {
                 $this->chan->push(['name' => $name, 'data' => $cb()]);
             } catch (\Error | \Exception $e) {
-                z::log(['协程内出错了', $e->getMessage()], 'SwooleError');
+                $this->errorLog('CoroutineError', $e->getMessage());
                 $this->chan->push(['name' => $name, 'data' => false, 'err' => $e]);
             }
         });
@@ -58,7 +59,7 @@ class Coroutine
                 $e   = $res['err'];
                 $err = method_exists($e, 'render') ? $e->render() : $e->getMessage();
                 /** @noinspection PhpUnhandledExceptionInspection */
-                throw new SwooleHandler($err, 500);
+                throw new SwooleException($err, 500);
             }
             $data[$res['name']] = $res['data'];
         }

@@ -1,4 +1,4 @@
-<?php declare (strict_types = 1);
+<?php declare (strict_types=1);
 
 namespace Zls\Swoole;
 
@@ -53,21 +53,18 @@ class Http
         $_SESSION               = [];
         /** @noinspection PhpUndefinedMethodInspection */
         $zlsConfig->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
-
         if (z::arrayGet($config, 'watch') && '1' === z::arrayGet($_GET, '_reload')) {
-            $this->printLog('重载文件');
+            $this->printLog('reload Serve');
             $server->reload();
         }
-
         Z::setGlobalData([
-            'server' => $_SERVER,
-            'get' => $_GET,
-            'post' => $_POST,
-            'files' => isset($_FILES) ? $_FILES : [],
-            'cookie' => isset($_COOKIE) ? $_COOKIE : [],
-            'session' => isset($_SESSION) ? $_SESSION : []
+            'server'  => $_SERVER,
+            'get'     => $_GET,
+            'post'    => $_POST,
+            'files'   => isset($_FILES) ? $_FILES : [],
+            'cookie'  => isset($_COOKIE) ? $_COOKIE : [],
+            'session' => isset($_SESSION) ? $_SESSION : [],
         ]);
-
         ob_start();
         try {
             if (z::arrayGet($zlsConfig->getSessionConfig(), 'autostart')) {
@@ -75,7 +72,7 @@ class Http
             }
             $zlsConfig->bootstrap();
             Zls::runWeb();
-        } catch (SwooleHandler $e) {
+        } catch (SwooleException $e) {
             echo $e->getMessage();
         } catch (\Exception $e) {
             $err = (0 == $e->getCode()) ? $e->getMessage() : $this->exceptionHandle($e);

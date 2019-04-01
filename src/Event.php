@@ -24,7 +24,7 @@ class Event
         $this->zlsConfig = z::config();
     }
 
-    public function onWorkerStart($ws, $workerId): void
+    public function onWorkerStart($ws, $workerId)
     {
         if ($workerId === 0) {
             $this->inotify();
@@ -32,7 +32,7 @@ class Event
         }
     }
 
-    private function inotify(): void
+    private function inotify()
     {
         if ($this->main->hotLoad) {
             try {
@@ -75,7 +75,7 @@ class Event
         }
     }
 
-    protected function forPath(array &$lists, array $paths, string $d): void
+    protected function forPath(array &$lists, array $paths, string $d)
     {
         $folder = z::arrayGet($paths, 'folder', []);
         $path   = [$d];
@@ -90,7 +90,7 @@ class Event
         $lists = array_merge($lists, $path);
     }
 
-    private function sessionGc(): void
+    private function sessionGc()
     {
         $sessionConfig = $this->zlsConfig->getSessionConfig();
         $sessionState  = z::arrayGet($sessionConfig, 'autostart');
@@ -109,18 +109,18 @@ class Event
 
     public function onWorkerStop()
     {
-        z::log('onWorkerStop', 's');
+        // $this->log('onWorkerStop');
     }
 
     public function onWorkerError(\swoole_server $serv, $worker_id, $worker_pid, $exit_code, $signal)
     {
         $err = [
-            '是异常进程的编号'          => $worker_id,
-            '是异常进程的ID'          => $worker_pid,
-            '退出的状态码，范围是 1 ～255' => $exit_code,
-            '进程退出的信号'           => $signal,
+            'id'     => $worker_id,
+            'pid'    => $worker_pid,
+            'code'   => $exit_code,
+            'signal' => $signal,
         ];
-        z::log(['onWorkerError', $err], 's');
+        $this->errorLog('onWorkerError', $err);
         // \swoole_process::kill($worker_pid);
         // $serv->stop( $worker_id , true);
     }
@@ -129,9 +129,8 @@ class Event
      * 正常结束
      * @param \swoole_server $server
      */
-    public function onShutdown($server): void
+    public function onShutdown($server)
     {
-        z::log('onShutdown', 's');
     }
 
     /**
@@ -139,11 +138,11 @@ class Event
      * @param \swoole_server $server
      * @desc cli_set_process_title(z::config('swoole.pname'));
      */
-    public function onStart($server): void
+    public function onStart($server)
     {
     }
 
-    public function onClose($server, $fd, $reactorId): void
+    public function onClose($server, $fd, $reactorId)
     {
         z::resetZls();
     }

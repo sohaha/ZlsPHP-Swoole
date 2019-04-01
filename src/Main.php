@@ -1,12 +1,10 @@
-<?php declare (strict_types = 1);
+<?php declare (strict_types=1);
 
 namespace Zls\Swoole;
 
 /*
  * Swoole
- * @author        影浅
- * @email         seekwe@gmail.com
- * @copyright     Copyright (c) 2015 - 2017, 影浅, Inc.
+ * @author        影浅 - seekwe@gmail.com
  * @updatetime    2018-09-07 15:40:18
  */
 
@@ -29,7 +27,7 @@ class Main
 
     public function __construct()
     {
-        $this->pidFile = z::realPathMkdir(z::config()->getStorageDirPath(), true, false, false) . 'swooleServer.pid';
+        $this->pidFile = z::realPathMkdir(z::config()->getStorageDirPath() . 'swoole', true, false, false) . 'swooleServer.pid';
         $this->initColor();
     }
 
@@ -40,6 +38,8 @@ class Main
             preg_match_all('/\d+/', Z::command("pstree -p {$pid}"), $pids);
             $pids = join(' ', $pids[0]);
             Z::command("kill -9 {$pids}", '', true, false);
+        } else {
+            $this->printLog('Did not find the pid file, please manually view the process and end.', 'red');
         }
         $this->printLog('Done.', 'green');
     }
@@ -63,7 +63,7 @@ class Main
     {
         $this->printLog('Stoping...', 'dark_gray');
         if ($pid = $this->existProcess()) {
-            swoole_process::kill($pid);
+            swoole_process::kill($pid);// Z::command("kill -15 {$pid}", '', true, false);
             $time   = time() + 15;
             $status = true;
             while ($status) {
@@ -112,45 +112,49 @@ class Main
                 $this->printLog('enable_http or enable_websocker must open one!', 'yellow');
                 die;
             }
-            if ($enableWebSocker) {
-                $ws      = 'ws://' . ($host === '0.0.0.0' ? '127.0.0.1' : $host) . ':' . $port;
-                $lines[] = $this->printStr('[ Swoole Socker ]', 'blue', '') . ': ' . $ws . '  OutTime: ' . z::arrayGet($setProperties, 'heartbeat_check_interval', '-');
-                $server  = new swoole_websocket_server($host, $port);
-                /** @var \Zls\Swoole\WebSocket $WebSocketClient */
-                $WebSocketClient = z::factory('Zls\Swoole\WebSocket');
-                $server->on('open', [$WebSocketClient, 'open']);
-                $server->on('message', [$WebSocketClient, 'message']);
-                $server->on('task', [$WebSocketClient, 'task']);
-                $server->on('finish', [$WebSocketClient, 'finish']);
-                $server->on('close', [$WebSocketClient, 'close']);
-                if ($enableHttp) {
+            try {
+                if ($enableWebSocker) {
+                    $ws      = 'ws://' . ($host === '0.0.0.0' ? '127.0.0.1' : $host) . ':' . $port;
+                    $lines[] = $this->printStr('[ Swoole Socker ]', 'blue', '') . ': ' . $ws . '  OutTime: ' . z::arrayGet($setProperties, 'heartbeat_check_interval', '-');
+                    $server  = new swoole_websocket_server($host, $port);
+                    /** @var \Zls\Swoole\WebSocket $WebSocketClient */
+                    $WebSocketClient = z::factory('Zls\Swoole\WebSocket');
+                    $server->on('open', [$WebSocketClient, 'open']);
+                    $server->on('message', [$WebSocketClient, 'message']);
+                    $server->on('task', [$WebSocketClient, 'task']);
+                    $server->on('finish', [$WebSocketClient, 'finish']);
+                    $server->on('close', [$WebSocketClient, 'close']);
+                    if ($enableHttp) {
+                        $lines[] = $this->webService($host, $port, $server, $zlsConfig);
+                    }
+                } else {
+                    $server  = new swoole_http_server($host, $port);
                     $lines[] = $this->webService($host, $port, $server, $zlsConfig);
                 }
-            } else {
-                $server  = new swoole_http_server($host, $port);
-                $lines[] = $this->webService($host, $port, $server, $zlsConfig);
-            }
-            $this->server = $server;
-            $zlsConfig->setZMethods('swoole', function () {
-                return $this->server;
-            });
-            $this->BindingEvent();
-            $defaultProperties = [
-                //'pname' => 'swoole_zls',
-                'document_root'         => ZLS_PATH,
-                'enable_static_handler' => true,
-                'daemonize'             => $daemonize,
-            ];
-            $setProperties     = $setProperties ? array_merge($setProperties, $defaultProperties) : $defaultProperties;
-            $server->set(['pid_file' => $this->pidFile] + $setProperties);
-            if ($process = $this->getProcess()) {
-                foreach ($process as $p) {
-                    $server->addProcess($p);
+                $this->server = $server;
+                $zlsConfig->setZMethods('swoole', function () {
+                    return $this->server;
+                });
+                $this->BindingEvent();
+                $defaultProperties = [
+                    //'pname' => 'swoole_zls',
+                    'document_root'         => ZLS_PATH,
+                    'enable_static_handler' => true,
+                    'daemonize'             => $daemonize,
+                ];
+                $setProperties     = $setProperties ? array_merge($setProperties, $defaultProperties) : $defaultProperties;
+                $server->set(['pid_file' => $this->pidFile] + $setProperties);
+                if ($process = $this->getProcess()) {
+                    foreach ($process as $p) {
+                        $server->addProcess($p);
+                    }
                 }
+                $line = implode("\n", $lines);
+                echo $line . PHP_EOL;
+                $server->start();
+            } catch (\Throwable $e) {
+                $this->printLog($e->getMessage(), 'red');
             }
-            $line = implode("\n", $lines);
-            echo $line . PHP_EOL;
-            $server->start();
         } else {
             $this->printLog('Swoole service has started', 'red');
         }
@@ -183,11 +187,6 @@ class Main
     {
         $this->log('启动连接池');
         $pool = new Pool();
-    }
-
-    public function log(...$_)
-    {
-        z::log($_, 'swoole');
     }
 
     private function webService($host, $port, $server, \Zls_Config $zlsConfig): string
@@ -265,11 +264,12 @@ class Main
 
     public function reload()
     {
-        $pid = @file_get_contents($this->pidFile);
-        if (extension_loaded('posix')) {
-            posix_kill((int)$pid, SIGUSR1);
-        } else {
-            Z::command('kill -USR1 ' . $pid, '', false, false);
+        if ($pid = @file_get_contents($this->pidFile)) {
+            if (extension_loaded('posix')) {
+                posix_kill((int)$pid, SIGUSR1);
+            } else {
+                Z::command('kill -USR1 ' . $pid, '', false, false);
+            }
         }
     }
 }
