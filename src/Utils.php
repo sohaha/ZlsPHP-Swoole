@@ -1,4 +1,4 @@
-<?php declare (strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Zls\Swoole;
 
@@ -33,6 +33,6 @@ trait Utils
 
     public function errorLog(...$_)
     {
-        z::log($_, 'swoole');
+        z::log($_, 'swoole/err');
     }
 }

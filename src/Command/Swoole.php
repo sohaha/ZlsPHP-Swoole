@@ -103,7 +103,7 @@ class Swoole extends \Zls\Command\Command
     {
         return [
             ' init'    => ['Publish Swoole configuration', ['--force, -F' => ' Overwrite old config file']],
-            ' start'   => ['Start the swoole server', ['--no-daemonize, -n, -n' => 'Close Process Daemon']],
+            ' start'   => ['Start the swoole server', ['--no-daemonize, -n, -N' => 'Close Process Daemon']],
             ' stop'    => 'Stop the swoole server',
             ' reload'  => 'Hot overload file, does not support update configuration file',
             ' restart' => ['Restart the swolle service'],

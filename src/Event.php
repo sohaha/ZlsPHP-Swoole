@@ -14,6 +14,8 @@ use Z;
 
 class Event
 {
+
+    use Utils;
     /** @var Main $main */
     private $main;
     private $zlsConfig;
@@ -28,7 +30,7 @@ class Event
     {
         if ($workerId === 0) {
             $this->inotify();
-            //$this->sessionGc();
+            $this->sessionGc();
         }
     }
 
@@ -120,7 +122,9 @@ class Event
             'code'   => $exit_code,
             'signal' => $signal,
         ];
-        $this->errorLog('onWorkerError', $err);
+        if ($exit_code !== 0) {
+            $this->errorLog('onWorkerError', $err);
+        }
         // \swoole_process::kill($worker_pid);
         // $serv->stop( $worker_id , true);
     }
@@ -140,6 +144,46 @@ class Event
      */
     public function onStart($server)
     {
+    }
+
+    public function onWorkerExit()
+    {
+
+    }
+
+    public function onConnect()
+    {
+
+    }
+
+    public function onReceive()
+    {
+
+    }
+
+    public function onTask()
+    {
+
+    }
+
+    public function onFinish()
+    {
+
+    }
+
+    public function onPipeMessage()
+    {
+
+    }
+
+    public function onManagerStart()
+    {
+
+    }
+
+    public function onManagerStop()
+    {
+
     }
 
     public function onClose($server, $fd, $reactorId)
