@@ -1,0 +1,175 @@
+<?php declare (strict_types=1);
+/*
+ * @Author: seekwe
+ * @Date:   2019-05-31 12:59:44
+ * @Last Modified by:   seekwe
+ * @Last Modified time: 2019-06-03 18:14:34
+ */
+
+namespace Zls\Swoole\RPC;
+
+use swoole_client;
+use Z;
+use Zls\Swoole\Pool;
+
+class Client
+{
+    /**
+     * @var swoole_client
+     */
+    private $client;
+    private static $pool = [];
+    /**
+     * @var int
+     */
+    private $timeout = 5;
+
+    public function __construct()
+    {
+        $this->client = new swoole_client(SWOOLE_TCP | SWOOLE_KEEP);
+    }
+
+    public function connect(string $addr, $timeout = 5)
+    {
+        $this->timeout = $timeout;
+        $addr          = explode(":", $addr);
+        $ip            = z::arrayGet($addr, 0, "");
+        $port          = (int)z::arrayGet($addr, 1, 0);
+        if (!$this->client->connect($ip, $port, $timeout)) {
+            return $this->client->errCode;
+        }
+
+        return true;
+    }
+
+    public function close()
+    {
+        $this->client && $this->client->isConnected() && $this->client->close(true);
+
+        return true;
+    }
+
+    public function recv()
+    {
+        return $this->client->recv();
+    }
+
+    public function send($data)
+    {
+        return $this->client->send($data);
+    }
+
+    public function call($method, $params, $id = -1)
+    {
+        $recv = null;
+        $data = ["method" => $method, "params" => [$params], "id" => $id];
+        /** @noinspection PhpComposerExtensionStubsInspection */
+        if ($rs = $this->send(@json_encode($data, JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES))) {
+            if ($recv = $this->recv()) {
+                /** @noinspection PhpComposerExtensionStubsInspection */
+                $recv = @json_decode($recv, true);
+                if (z::arrayGet($recv, 'error') == null) {
+                    return $recv['result'];
+                }
+            }
+        }
+        $this->close();
+
+        return false;
+    }
+
+    public function error()
+    {
+        return $this->client->errCode;
+    }
+
+    public function instance()
+    {
+        return $this->client;
+    }
+
+    public static function init(string $name, array $option)
+    {
+        $addr    = $option['addr'];
+        $timeout = $option['timeout'];
+        $max     = $option['pool_max'];
+        $min     = $option['pool_min'];
+        $init    = function () use ($addr, $timeout) {
+            $client  = new self();
+            $connect = $client->connect($addr, $timeout);
+            if ($connect === false) {
+                $client->close(true);
+                z::log("重连", 'log', true);
+                $connect = $client->connect($addr, $timeout);
+            }
+
+            return ($connect === false) ? null : $client;
+        };
+        if (!isset(self::$pool[$name])) {
+            $pool = new Pool();
+            $pool->init([$min, $max], $init, function ($client) {
+                $client->close();
+            }, function ($client, $init, $close) {
+                if ($client->instance() && $client->instance()->isConnected() && !$client->error()) {
+                    return $client;
+                }
+                $close($client);
+
+                return $init();
+            });
+            self::$pool[$name] = $pool;
+        }
+
+        return self::$pool[$name];
+    }
+
+    // todo dev
+    public static function getError(int $errno, int $error_type = 1)
+    {
+        // https://wiki.swoole.com/wiki/page/192.html
+        return swoole_strerror($errno, $error_type);
+    }
+
+    public static function clients()
+    {
+        return self::$pool;
+    }
+
+    public static function get($name, $timeout = 5)
+    {
+        $call = $obj = null;
+        try {
+            $obj = self::$pool[$name]->get($timeout);
+            if ($obj) {
+                $call = function ($method, $params, $id = -1) use ($obj) {
+                    return $obj->call($method, $params, $id);
+                };
+            } else {
+                $call = function () {
+                    return false;
+                };
+            }
+        } catch (\Zls\Swoole\Exception\Pool $e) {
+
+        }
+
+        return [
+            $call, function () use ($name, $obj) {
+                self::put($name, $obj);
+            },
+        ];
+    }
+
+    public static function info($name)
+    {
+        return self::$pool[$name]->info();
+    }
+
+    public static function put($name, $obj)
+    {
+        z::log("回来:" . $obj->error());
+
+        return (!$obj->error()) ? self::$pool[$name]->put($obj) : false;
+    }
+
+}

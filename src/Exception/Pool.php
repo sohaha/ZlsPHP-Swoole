@@ -6,8 +6,8 @@
  * @Last Modified time: 2019-05-31 16:05:24
  */
 
-namespace Zls\Swoole;
+namespace Zls\Swoole\Exception;
 
-class SwooleException extends \Zls_Exception
+class Pool extends \Zls_Exception
 {
 }

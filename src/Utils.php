@@ -1,4 +1,10 @@
 <?php declare (strict_types = 1);
+/*
+ * @Author: seekwe
+ * @Date:   2019-05-28 15:27:25
+ * @Last Modified by:   seekwe
+ * @Last Modified time: 2019-05-31 16:01:00
+ */
 
 namespace Zls\Swoole;
 
@@ -6,15 +12,6 @@ use z;
 use Zls;
 use Zls\Command\Utils as CommandUtils;
 
-/**
- * Zls
- * @author        影浅
- * @email         seekwe@gmail.com
- * @copyright     Copyright (c) 2015 - 2017, 影浅, Inc.
- * @link          ---
- * @since         v0.0.1
- * @updatetime    2018-09-23 15:20
- */
 trait Utils
 {
     use CommandUtils;

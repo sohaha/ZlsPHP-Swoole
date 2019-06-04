@@ -1,17 +1,16 @@
-<?php declare (strict_types=1);
+<?php declare (strict_types = 1);
+/*
+ * @Author: seekwe
+ * @Date:   2019-05-28 15:27:25
+ * @Last Modified by:   seekwe
+ * @Last Modified time: 2019-06-03 13:11:42
+ */
 
 namespace Zls\Swoole;
-
-/*
- * Swoole
- * @author        影浅 - seekwe@gmail.com
- * @updatetime    2018-09-07 15:40:18
- */
 
 use ReflectionMethod;
 use swoole_http_server;
 use swoole_process;
-use swoole_websocket_server;
 use Z;
 
 class Main
@@ -48,7 +47,7 @@ class Main
     {
         $pid = 0;
         if (file_exists($this->pidFile)) {
-            if ($pid = (int)@file_get_contents($this->pidFile)) {
+            if ($pid = (int) @file_get_contents($this->pidFile)) {
                 /** @noinspection PhpVoidFunctionResultUsedInspection */
                 $pid = swoole_process::kill($pid, 0) ? $pid : 0;
             } else {
@@ -63,8 +62,8 @@ class Main
     {
         $this->printLog('Stoping...', 'dark_gray');
         if ($pid = $this->existProcess()) {
-            swoole_process::kill($pid);// Z::command("kill -15 {$pid}", '', true, false);
-            $time   = time() + 15;
+            swoole_process::kill($pid); // Z::command("kill -15 {$pid}", '', true, false);
+            $time = time() + 15;
             $status = true;
             while ($status) {
                 $pid = $this->existProcess();
@@ -98,13 +97,13 @@ class Main
             if (Z::arrayGet($args, ['--no-daemonize', 'N', 'n'], false)) {
                 $daemonize = false;
             }
-            $lines          = [];
+            $lines = [];
             $this->serverOn = z::arrayGet($this->config, 'on_event', []);
-            $host           = z::arrayGet($this->config, 'host');
-            $runBefore      = z::arrayGet($this->config, 'run_before');
-            $port           = (int)z::arrayGet($this->config, 'port');
-            $setProperties  = z::arrayGet($this->config, 'set_properties', []);
-            $beforeLoader   = z::arrayGet($this->config, 'before_loader', []);
+            $host = z::arrayGet($this->config, 'host');
+            $runBefore = z::arrayGet($this->config, 'run_before');
+            $port = (int) z::arrayGet($this->config, 'port');
+            $setProperties = z::arrayGet($this->config, 'set_properties', []);
+            $beforeLoader = z::arrayGet($this->config, 'before_loader', []);
             if ($enableHttp = z::arrayGet($this->config, 'enable_http', true)) {
                 $this->setSession();
             }
@@ -113,7 +112,7 @@ class Main
                 $this->setDbPool();
             }
             $enableWebSocker = z::arrayGet($this->config, 'enable_websocker', false);
-            $this->hotLoad   = (false !== z::arrayGet($this->config, 'watch')) && extension_loaded('inotify');
+            $this->hotLoad = (false !== z::arrayGet($this->config, 'watch')) && extension_loaded('inotify');
             if (!$enableWebSocker && !$enableHttp) {
                 $this->printLog('enable_http or enable_websocker must open one!', 'yellow');
                 die;
@@ -134,7 +133,7 @@ class Main
                 //         $lines[] = $this->webService($host, $port, $server, $zlsConfig);
                 //     }
                 // } else {
-                $server  = new swoole_http_server($host, $port);
+                $server = new swoole_http_server($host, $port);
                 $lines[] = $this->webService($host, $port, $server, $zlsConfig);
                 // }
                 $this->server = $server;
@@ -143,11 +142,11 @@ class Main
                 });
                 $defaultProperties = [
                     //'pname' => 'swoole_zls',
-                    'document_root'         => ZLS_PATH,
+                    'document_root' => ZLS_PATH,
                     'enable_static_handler' => true,
-                    'daemonize'             => $daemonize,
+                    'daemonize' => $daemonize,
                 ];
-                $setProperties     = $setProperties ? array_merge($setProperties, $defaultProperties) : $defaultProperties;
+                $setProperties = $setProperties ? array_merge($setProperties, $defaultProperties) : $defaultProperties;
                 $server->set(['pid_file' => $this->pidFile] + $setProperties);
                 if ($process = $this->getProcess()) {
                     foreach ($process as $p) {
@@ -159,6 +158,22 @@ class Main
                 echo $line . PHP_EOL;
                 if (is_callable($runBefore)) {
                     $runBefore($server, $this->config);
+                }
+                if (!!z::arrayGet($this->config, 'rpc_server.enable')) {
+                    $rpcServerAddr = z::arrayGet($this->config, 'rpc_server.addr', "0.0.0.0:8081");
+                    $addr = explode(":", $rpcServerAddr);
+                    $this->printLog('Start RPC server ' . $rpcServerAddr);
+
+                    $rpc = new RPC\Server($server->listen(z::arrayGet($addr, 0), (int) z::arrayGet($addr, 1), SWOOLE_SOCK_TCP), $this->config);
+                }
+                if (!!z::arrayGet($this->config, 'rpc_client.enable')) {
+                    $clients = z::arrayGet($this->config, 'rpc_client.client', []);
+                    if ($clients) {
+                        foreach ($clients as $cName => $client) {
+                            $this->printLog('Start RPC client ' . $client['addr']);
+                            RPC\Client::init($cName, $client);
+                        }
+                    }
                 }
                 $server->start();
             } catch (\Throwable $e) {
@@ -181,10 +196,10 @@ class Main
     private function setSession(): void
     {
         /** @var \Zls_Config $zlsConfig */
-        $zlsConfig     = z::config();
+        $zlsConfig = z::config();
         $sessionConfig = $zlsConfig->getSessionConfig();
-        $sessionState  = z::arrayGet($sessionConfig, 'autostart');
-        $fileSession   = 'Zls\Session\File';
+        $sessionState = z::arrayGet($sessionConfig, 'autostart');
+        $fileSession = 'Zls\Session\File';
         /** @var \Zls\Session\File $SessionHandle */
         if ($sessionState && !$SessionHandle = $zlsConfig->getSessionHandle()) {
             $SessionHandle = new $fileSession;
@@ -213,7 +228,7 @@ class Main
                 $response->end();
             } else {
                 $content = $http->onRequest($request, $response, $server, $zlsConfig, $this->config);
-                if ((bool)$content) {
+                if ((bool) $content) {
                     $response->write($content);
                 }
                 $response->end();
@@ -251,12 +266,12 @@ class Main
     private function BindingEvent($prefix = 'on'): void
     {
         try {
-            $EventClass   = new \ReflectionClass('Zls\Swoole\Event');
+            $EventClass = new \ReflectionClass('Zls\Swoole\Event');
             $EventMethods = $EventClass->getMethods(ReflectionMethod::IS_PUBLIC);
             /** @var \Zls\Swoole\Event $EventInstance */
             $EventInstance = $EventClass->newInstance($this);
             Z::arrayMap($EventMethods, function ($v) use ($EventInstance, $prefix) {
-                $name = z::arrayGet((array)$v, 'name');
+                $name = z::arrayGet((array) $v, 'name');
                 if (Z::strBeginsWith($name, $prefix)) {
                     $method = substr($name, strlen($prefix));
                     $this->on($method, function (...$e) use ($EventInstance, $name) {
@@ -288,7 +303,7 @@ class Main
         if ($pid = @file_get_contents($this->pidFile)) {
             if (extension_loaded('posix')) {
                 /** @noinspection PhpComposerExtensionStubsInspection */
-                posix_kill((int)$pid, SIGUSR1);
+                posix_kill((int) $pid, SIGUSR1);
             } else {
                 Z::command('kill -USR1 ' . $pid, '', false, false);
             }
