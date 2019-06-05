@@ -1,4 +1,4 @@
-<?php declare (strict_types = 1);
+<?php declare (strict_types=1);
 /*
  * @Author: seekwe
  * @Date:   2019-05-31 12:59:44
@@ -13,26 +13,32 @@ use Z;
 
 class Client
 {
-
     private static $clients = [];
 
-    public static function call(\swoole_client $client, $method, $params, $id = -1)
+    public static function call(string $clientName, string $method, $params, $id = -1)
     {
-        $recv = null;
+        /** @var \swoole_client $client */
+        if (!$client = self::get($clientName)) {
+            return [null, "Client connection failed"];
+        }
         $data = ["method" => $method, "params" => [$params], "id" => $id];
         /** @noinspection PhpComposerExtensionStubsInspection */
         if ($rs = $client->send(@json_encode($data, JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES))) {
             if ($recv = $client->recv()) {
                 /** @noinspection PhpComposerExtensionStubsInspection */
-                $recv = @json_decode($recv, true);
-                if (z::arrayGet($recv, 'error') == null) {
-                    return $recv['result'];
+                if ($recv = @json_decode($recv, true)) {
+                    return Z::tap([$recv['result'], $recv['error']], function () use ($client) {
+                        $client->close();
+                    });
+                } else {
+                    return [null, "Data format error, non-json format"];
                 }
             }
         }
 
-        return false;
+        return [null, "Failed to send"];
     }
+
 
     public static function init(string $name, array $option)
     {
@@ -43,27 +49,22 @@ class Client
         return self::$clients[$name];
     }
 
-    public static function get($name, $timeout = null)
+    public static function get($clientName, $timeout = null)
     {
-        $call = null;
-        if (isset(self::$clients[$name])) {
-            $option = self::$clients[$name];
-            $addr = explode(':', $option['addr']);
+        if (isset(self::$clients[$clientName])) {
+            $option = self::$clients[$clientName];
+            $addr   = explode(':', $option['addr']);
             if (is_null($timeout)) {
                 $timeout = $option['timeout'];
             }
             $client = new swoole_client(SWOOLE_TCP | SWOOLE_KEEP);
-            $ip = z::arrayGet($addr, 0, "");
-            $port = (int) z::arrayGet($addr, 1, 0);
+            $ip     = z::arrayGet($addr, 0, "");
+            $port   = (int)z::arrayGet($addr, 1, 0);
             if ($client->connect($ip, $port, $timeout)) {
-                $call = function ($method, $params, $id = -1) use ($client) {
-                    return z::tap(self::call($client, $method, $params, $id), function () use ($client) {
-                        $client->close();
-                    });
-                };
+                return $client;
             }
         }
 
-        return $call;
+        return false;
     }
 }

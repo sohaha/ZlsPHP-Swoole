@@ -1,9 +1,9 @@
-<?php declare (strict_types = 1);
+<?php declare (strict_types=1);
 /*
  * @Author: seekwe
  * @Date:   2019-05-31 12:59:44
  * @Last Modified by:   seekwe
- * @Last Modified time: 2019-06-04 17:18:12
+ * @Last Modified time: 2019-05-31 18:45:16
  */
 
 namespace Zls\Swoole\RPC;
@@ -38,20 +38,20 @@ class Server
                 return @json_encode($data, JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES);
             };
         }
-        $app = Z::arrayGet($config, 'rpc_server.method', []);
+        $app    = Z::arrayGet($config, 'rpc_server.method', []);
         $appKey = array_keys($app);
         $server->on("receive", function (\swoole_server $serv, $fd, $from_id, $data) use ($app, $appKey, $pack, $unpack) {
             $result = $err = null;
-            $id = 0;
-            $info = $unpack($data);
+            $id     = 0;
+            $info   = $unpack($data);
             if (!!$info && is_array($info)) {
-                $id = z::arrayGet($info, 'id');
+                $id     = z::arrayGet($info, 'id');
                 $method = z::arrayGet($info, 'method');
                 $params = z::arrayGet($info, 'params.0');
                 if (in_array($method, $appKey, true)) {
-                    $_method = $app[$method];
+                    $_method   = $app[$method];
                     $appMethod = $_method[1];
-                    $factory = Z::factory($_method[0]);
+                    $factory   = Z::factory($_method[0]);
                     try {
                         $result = $factory->$appMethod($params, $id);
                     } catch (\Throwable $e) {
