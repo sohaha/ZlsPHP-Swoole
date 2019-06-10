@@ -27,14 +27,14 @@ class PhpCoroutine implements Coroutine
 
     }
 
-    public function sleep($time)
+    public static function sleep($time)
     {
         sleep($time);
     }
 
-    public function run(string $name, \Closure $cb)
+    public function run(string $name, \Closure $ce)
     {
-        $this->data[$name] = $cb();
+        $this->data[$name] = $ce();
     }
 
     public function data(): array
@@ -42,8 +42,13 @@ class PhpCoroutine implements Coroutine
         return $this->data;
     }
 
-    public function defer(\Closure $cb)
+    public static function defer(\Closure $ce)
     {
-        z::defer($cb);
+        z::defer($ce);
+    }
+
+    public static function go(\Closure $ce)
+    {
+        $ce();
     }
 }

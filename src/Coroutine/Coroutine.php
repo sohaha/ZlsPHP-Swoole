@@ -11,8 +11,9 @@ namespace Zls\Swoole\Coroutine;
 interface Coroutine
 {
     public function __construct($timeout, $sum);
-    public function sleep($time);
-    public function run(string $name, \Closure $cb);
+    public static function sleep($time);
+    public function run(string $name, \Closure $ce);
     public function data();
-    public function defer(\Closure $cb);
+    public static function defer(\Closure $ce);
+    public static function go(\Closure $ce);
 }

@@ -30,7 +30,6 @@ class Http
      */
     public function onRequest($request, $response, $server, $zlsConfig, $config = [])
     {
-        z::resetZls();
         z::di()->bind('SwooleResponse', function () use ($response) {
             return $response;
         });
@@ -78,9 +77,8 @@ class Http
         $content = ob_get_contents();
         ob_end_clean();
         Z::eventEmit('ZLS_DEFER');
-        z::resetZls();
-
-        return $content ?: ' ';
+        Z::resetZls();
+        return $content;
     }
 
 }

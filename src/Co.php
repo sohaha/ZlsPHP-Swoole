@@ -21,4 +21,13 @@ class Co
             return new Coroutine\PhpCoroutine($timeout, $sum);
         }
     }
+
+    public static function go(\Closure $ce)
+    {
+        if (z::isSwoole()) {
+            Coroutine\SwooleCoroutine::go($ce);
+        } else {
+            Coroutine\PhpCoroutine::go($ce);
+        }
+    }
 }

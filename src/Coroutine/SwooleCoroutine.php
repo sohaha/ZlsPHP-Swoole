@@ -19,7 +19,7 @@ class SwooleCoroutine implements Coroutine
     use Utils;
     /** @var Channel $chan */
     private $chan;
-    private $sum;
+    private $sum = 0;
     private $outtime;
     private $data;
 
@@ -30,18 +30,23 @@ class SwooleCoroutine implements Coroutine
         $this->data = [];
     }
 
-    public function sleep($time)
+    public static function sleep($time)
     {
         c::sleep($time);
     }
 
-    public function run(string $name, \Closure $cb)
+    public function run(string $name, \Closure $ce)
     {
+        if (!$name) {
+            $name = (string) $this->sum;
+        }
         ++$this->sum;
         $this->data[] = $name;
-        go(function () use ($name, $cb) {
+        self::go(function () use ($name, $ce) {
             try {
-                $res = $this->chan->push(['name' => $name, 'data' => $cb()], $this->outtime);
+                $res = $this->chan->push(['name' => $name, 'data' => $ce()], $this->outtime);
+            } catch (\Zls_Exception_Exit $e) {
+                $res = $this->chan->push(['name' => $name, 'data' => $e->getMessage()], $this->outtime);
             } catch (\Error | \Exception $e) {
                 $this->errorLog('CoroutineError', $e->getMessage());
                 $res = $this->chan->push(['name' => $name, 'data' => false, 'err' => $e], $this->outtime);
@@ -59,12 +64,12 @@ class SwooleCoroutine implements Coroutine
             $t = time();
             /** @noinspection PhpMethodParametersCountMismatchInspection */
             $res = $this->chan->pop($this->outtime);
+            $err = null;
             if ($res === false) {
                 break;
             }
-
             if (Z::arrayKeyExists('err', $res)) {
-                z::log($res);
+                Z::log($res, "swoole/err");
                 /** @var \Exception $e */
                 $e = $res['err'];
                 $err = method_exists($e, 'render') ? $e->render() : $e->getMessage();
@@ -73,7 +78,7 @@ class SwooleCoroutine implements Coroutine
             } else {
 
             }
-            $data[$res['name']] = ['data' => $res['data'], 'err' => $res['err'], 'time' => time() - $t];
+            $data[$res['name']] = ['data' => $res['data'], 'err' => $err, 'time' => time() - $t];
         }
         $keys = array_keys($data);
         $errKey = array_diff($this->data, $keys);
@@ -83,8 +88,20 @@ class SwooleCoroutine implements Coroutine
         return $data;
     }
 
-    public function defer(\Closure $cb)
+    public static function defer(\Closure $ce)
     {
-        defer($cb);
+        defer($ce);
+    }
+
+    public static function go(\Closure $ce)
+    {
+        $globalData = Z::getGlobalData();
+        go(function () use ($ce, $globalData) {
+            Z::setGlobalData($globalData);
+            Z::tap($ce(), function () {
+                Z::resetZls();
+            });
+
+        });
     }
 }
