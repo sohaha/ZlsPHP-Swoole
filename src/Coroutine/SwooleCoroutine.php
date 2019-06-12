@@ -95,13 +95,6 @@ class SwooleCoroutine implements Coroutine
 
     public static function go(\Closure $ce)
     {
-        $globalData = Z::getGlobalData();
-        go(function () use ($ce, $globalData) {
-            Z::setGlobalData($globalData);
-            Z::tap($ce(), function () {
-                Z::resetZls();
-            });
-
-        });
+        go($ce);
     }
 }
