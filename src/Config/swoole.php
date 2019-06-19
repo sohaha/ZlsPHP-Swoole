@@ -28,7 +28,7 @@ return [
         'static_handler_locations' => ['/static', '/zls_manage'],
     ],
     'rpc_server' => [
-        'enable' => true,
+        'enable' => false,
         'addr' => z::arrayGet($swoole, 'rpc_server', "127.0.0.1:3782"),
         'method' => [
             // 注册供外部调用的命令

@@ -140,16 +140,17 @@ class Main
                 $zlsConfig->setZMethods('swoole', function () {
                     return $this->server;
                 });
+                $appName = explode('/', ZLS_PATH);
+                $appName = Z::arrayGet($appName, count($appName) - 3, 'app');
                 $defaultProperties = [
-                    //'pname' => 'swoole_zls',
+                    'pname' => 'zls_swoole_' . $appName,
                     'document_root' => Z::realPath(ZLS_PATH),
                     'enable_static_handler' => true,
                     'daemonize' => $daemonize,
                 ];
-
                 $setProperties = $setProperties ? array_merge($setProperties, $defaultProperties) : $defaultProperties;
+                $this->setProcessTitle($defaultProperties['pname']);
                 $this->staticLocations = ($setProperties['enable_static_handler']) ? Z::arrayGet($setProperties, 'static_handler_locations', []) : [];
-
                 $server->set(['pid_file' => $this->pidFile] + $setProperties);
                 if ($process = $this->getProcess()) {
                     foreach ($process as $p) {
@@ -195,6 +196,15 @@ class Main
             $this->config = Z::config('swoole');
         } else {
             $this->config = include __DIR__ . '/Config/swoole.php';
+        }
+    }
+
+    private function setProcessTitle($title)
+    {
+        if (function_exists('cli_set_process_title')) {
+            @cli_set_process_title($title);
+        } elseif (extension_loaded('proctitle') && function_exists('setproctitle')) {
+            @setproctitle($title);
         }
     }
 
