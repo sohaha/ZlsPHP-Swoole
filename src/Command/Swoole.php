@@ -9,16 +9,20 @@ class Swoole extends \Zls\Command\Command
 {
     public function execute($args)
     {
-        $active = z::arrayGet($args, 2);
-        if (class_exists('swoole_http_server')) {
-            if (method_exists($this, $active)) {
-                $this->$active($args);
+        try {
+            $active = z::arrayGet($args, 2);
+            if (class_exists('swoole_http_server')) {
+                if (method_exists($this, $active)) {
+                    $this->$active($args);
+                } else {
+                    //$this->error('Warning: unknown method');
+                    $this->help($args);
+                }
             } else {
-                //$this->error('Warning: unknown method');
-                $this->help($args);
+                $this->error("Warning: swoole not found !\nPlease install: https://wiki.swoole.com/wiki/page/6.html");
             }
-        } else {
-            $this->error("Warning: swoole not found !\nPlease install: https://wiki.swoole.com/wiki/page/6.html");
+        } catch (\Zls_Exception_Exit $e) {
+            $this->printStrN($e->getMessage());
         }
     }
 
@@ -85,8 +89,7 @@ class Swoole extends \Zls\Command\Command
     }
 
     public function example()
-    {
-    }
+    { }
 
     public function reload()
     {

@@ -25,7 +25,7 @@ return [
         // 最大连接
         //'max_connection' => 1024,// ulimit -n
         // 静态资源目录
-        'static_handler_locations' => ['/static', '/zls_manage'],
+        'static_handler_locations' => ['/static', '/zls-manage'],
     ],
     'rpc_server' => [
         'enable' => false,
@@ -46,8 +46,7 @@ return [
         ],
     ],
 
-    'run_before' => function (\swoole\Server $server, $config) {
-    },
+    'run_before' => function (\swoole\Server $server, $config) { },
     // 要自定义注册事件回调函数,注意没有on,如果onWorkerStart则写WorkerStart
     // 具体参考swoole文档 https://wiki.swoole.com/wiki/page/41.html
     'on_event' => [

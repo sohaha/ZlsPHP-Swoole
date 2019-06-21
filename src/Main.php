@@ -48,7 +48,7 @@ class Main
     {
         $pid = 0;
         if (file_exists($this->pidFile)) {
-            if ($pid = (int) @file_get_contents($this->pidFile)) {
+            if ($pid = (int)@file_get_contents($this->pidFile)) {
                 /** @noinspection PhpVoidFunctionResultUsedInspection */
                 $pid = swoole_process::kill($pid, 0) ? $pid : 0;
             } else {
@@ -102,7 +102,7 @@ class Main
             $this->serverOn = Z::arrayGet($this->config, 'on_event', []);
             $host = Z::arrayGet($this->config, 'host');
             $runBefore = Z::arrayGet($this->config, 'run_before');
-            $port = (int) Z::arrayGet($this->config, 'port');
+            $port = (int)Z::arrayGet($this->config, 'port');
             $setProperties = Z::arrayGet($this->config, 'set_properties', []);
             if ($enableHttp = Z::arrayGet($this->config, 'enable_http', true)) {
                 $this->setSession();
@@ -167,7 +167,7 @@ class Main
                     $rpcServerAddr = Z::arrayGet($this->config, 'rpc_server.addr', "0.0.0.0:8081");
                     $addr = explode(":", $rpcServerAddr);
                     $this->printStrN('[ Swoole RPC ]: tcp://' . $rpcServerAddr, 'yellow', '');
-                    $rpc = new RPC\Server($server->listen(Z::arrayGet($addr, 0), (int) Z::arrayGet($addr, 1), SWOOLE_SOCK_TCP), $this->config);
+                    $rpc = new RPC\Server($server->listen(Z::arrayGet($addr, 0), (int)Z::arrayGet($addr, 1), SWOOLE_SOCK_TCP), $this->config);
                     $zlsConfig->setZMethods('swooleRPC', function () use ($rpc) {
                         return $rpc;
                     });
@@ -243,6 +243,7 @@ class Main
             $pathInfo = Z::arrayGet($request->server, 'path_info');
             $file = Z::realPath(ZLS_PATH) . $pathInfo;
             if (!Z::strEndsWith($pathInfo, '.php') && !Z::strEndsWith($pathInfo, $methodUriSubfix) && $pathInfo !== '/' && is_file($file)) {
+                $response->header('Content-Type', $this->fileMIME($file));
                 $response->sendfile($file);
                 return;
             }
@@ -261,7 +262,7 @@ class Main
                 }
             } else {
                 $content = $http->onRequest($request, $response, $server, $zlsConfig, $this->config);
-                if ((bool) $content) {
+                if ((bool)$content) {
                     $response->write($content);
                 }
                 $response->end();
@@ -316,7 +317,7 @@ class Main
             /** @var \Zls\Swoole\Event $EventInstance */
             $EventInstance = $EventClass->newInstance($this);
             Z::arrayMap($EventMethods, function ($v) use ($EventInstance, $prefix) {
-                $name = Z::arrayGet((array) $v, 'name');
+                $name = Z::arrayGet((array)$v, 'name');
                 if (Z::strBeginsWith($name, $prefix)) {
                     $method = substr($name, strlen($prefix));
                     $this->on($method, function (...$e) use ($EventInstance, $name) {
@@ -348,7 +349,7 @@ class Main
         if ($pid = @file_get_contents($this->pidFile)) {
             if (extension_loaded('posix')) {
                 /** @noinspection PhpComposerExtensionStubsInspection */
-                posix_kill((int) $pid, SIGUSR1);
+                posix_kill((int)$pid, SIGUSR1);
             } else {
                 Z::command('kill -USR1 ' . $pid, '', false, false);
             }
