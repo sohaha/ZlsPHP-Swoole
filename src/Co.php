@@ -9,7 +9,9 @@
 namespace Zls\Swoole;
 
 use Z;
+use Zls\Swoole\Coroutine\Coroutine;
 use Zls\Swoole\Coroutine\SwooleCoroutine;
+use Zls\Swoole\Coroutine\PhpCoroutine;
 
 class Co
 {
@@ -22,12 +24,31 @@ class Co
         }
     }
 
-    public static function go(\Closure $ce)
+    public static function sleep($time)
     {
         if (z::isSwoole()) {
-            Coroutine\SwooleCoroutine::go($ce);
+            SwooleCoroutine::sleep($time);
         } else {
-            Coroutine\PhpCoroutine::go($ce);
+            PhpCoroutine::sleep($time);
         }
+    }
+
+    public static function go(\Closure $func)
+    {
+        if (z::isSwoole()) {
+            SwooleCoroutine::go($func);
+        } else {
+            PhpCoroutine::go($func);
+        }
+    }
+
+    public static function sync(\Closure $func)
+    {
+        return (z::isSwoole()) ? SwooleCoroutine::sync($func) : PhpCoroutine::sync($func);
+    }
+
+    public static function wait(Coroutine $task)
+    {
+        return (z::isSwoole()) ? SwooleCoroutine::wait($task) : PhpCoroutine::wait($task);
     }
 }

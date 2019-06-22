@@ -8,12 +8,35 @@
 
 namespace Zls\Swoole\Coroutine;
 
-interface Coroutine
+use Z;
+use Zls\Swoole\Utils;
+
+abstract class Coroutine
 {
-    public function __construct($timeout, $sum);
-    public static function sleep($time);
-    public function run(string $name, \Closure $ce);
-    public function data();
-    public static function defer(\Closure $ce);
-    public static function go(\Closure $ce);
+    use Utils;
+    abstract  public function __construct(
+        $timeout,
+        $sum
+    );
+    abstract public function run(string $name, \Closure $func);
+    abstract public function data();
+    abstract public static function defer(\Closure $func);
+    abstract public static function go(\Closure $func);
+
+    public static function sleep($time)
+    {
+        sleep($time);
+    }
+
+    public static function wait(Coroutine $task)
+    {
+        return z::arrayGet($task->data(), 'task.data');
+    }
+
+    public static function sync(\Closure $func)
+    {
+        $task = new static(-1, 1);
+        $task->run("task", $func);
+        return $task;
+    }
 }

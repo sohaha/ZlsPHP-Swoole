@@ -12,11 +12,9 @@ use Swoole\Coroutine as c;
 use Swoole\Coroutine\Channel;
 use Z;
 use Zls\Swoole\SwooleException;
-use Zls\Swoole\Utils;
 
-class SwooleCoroutine implements Coroutine
+class SwooleCoroutine extends Coroutine
 {
-    use Utils;
     /** @var Channel $chan */
     private $chan;
     private $sum = 0;
@@ -35,16 +33,16 @@ class SwooleCoroutine implements Coroutine
         c::sleep($time);
     }
 
-    public function run(string $name, \Closure $ce)
+    public function run(string $name, \Closure $func)
     {
         if (!$name) {
-            $name = (string) $this->sum;
+            $name = (string)$this->sum;
         }
         ++$this->sum;
         $this->data[] = $name;
-        self::go(function () use ($name, $ce) {
+        self::go(function () use ($name, $func) {
             try {
-                $res = $this->chan->push(['name' => $name, 'data' => $ce()], $this->outtime);
+                $res = $this->chan->push(['name' => $name, 'data' => $func()], $this->outtime);
             } catch (\Zls_Exception_Exit $e) {
                 $res = $this->chan->push(['name' => $name, 'data' => $e->getMessage()], $this->outtime);
             } catch (\Error | \Exception $e) {
@@ -75,9 +73,7 @@ class SwooleCoroutine implements Coroutine
                 $err = method_exists($e, 'render') ? $e->render() : $e->getMessage();
                 /** @noinspection PhpUnhandledExceptionInspection */
                 throw new SwooleException($err, 500, 'Exception', $e->getFile(), $e->getLine());
-            } else {
-
-            }
+            } else { }
             $data[$res['name']] = ['data' => $res['data'], 'err' => $err, 'time' => time() - $t];
         }
         $keys = array_keys($data);
@@ -88,13 +84,13 @@ class SwooleCoroutine implements Coroutine
         return $data;
     }
 
-    public static function defer(\Closure $ce)
+    public static function defer(\Closure $func)
     {
-        defer($ce);
+        defer($func);
     }
 
-    public static function go(\Closure $ce)
+    public static function go(\Closure $func)
     {
-        go($ce);
+        go($func);
     }
 }

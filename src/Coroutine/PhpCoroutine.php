@@ -11,11 +11,9 @@ namespace Zls\Swoole\Coroutine;
 use Swoole\Coroutine as c;
 use Swoole\Coroutine\Channel;
 use Z;
-use Zls\Swoole\Utils;
 
-class PhpCoroutine implements Coroutine
+class PhpCoroutine extends Coroutine
 {
-    use Utils;
     /** @var Channel $chan */
     private $chan;
     private $sum;
@@ -23,18 +21,11 @@ class PhpCoroutine implements Coroutine
     private $data;
 
     public function __construct($timeout, $sum)
-    {
+    { }
 
-    }
-
-    public static function sleep($time)
+    public function run(string $name, \Closure $func)
     {
-        sleep($time);
-    }
-
-    public function run(string $name, \Closure $ce)
-    {
-        $this->data[$name] = $ce();
+        $this->data[$name] = ['data' => $func()];
     }
 
     public function data(): array
@@ -42,13 +33,13 @@ class PhpCoroutine implements Coroutine
         return $this->data;
     }
 
-    public static function defer(\Closure $ce)
+    public static function defer(\Closure $func)
     {
-        z::defer($ce);
+        z::defer($func);
     }
 
-    public static function go(\Closure $ce)
+    public static function go(\Closure $func)
     {
-        $ce();
+        $func();
     }
 }
