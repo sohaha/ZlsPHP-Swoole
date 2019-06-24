@@ -3,7 +3,7 @@
  * @Author: seekwe
  * @Date:   2019-05-28 15:27:25
  * @Last Modified by:   seekwe
- * @Last Modified time: 2019-05-31 16:05:11
+ * @Last Modified time: 2019-06-23 19:26:04
  */
 
 namespace Zls\Swoole\Coroutine;
@@ -14,11 +14,11 @@ use Zls\Swoole\Utils;
 abstract class Coroutine
 {
     use Utils;
-    abstract  public function __construct(
+    abstract public function __construct(
         $timeout,
         $sum
     );
-    abstract public function run(string $name, \Closure $func);
+    abstract public function run($name, \Closure $func);
     abstract public function data();
     abstract public static function defer(\Closure $func);
     abstract public static function go(\Closure $func);

@@ -3,7 +3,7 @@
  * @Author: seekwe
  * @Date:   2019-05-28 15:27:25
  * @Last Modified by:   seekwe
- * @Last Modified time: 2019-05-31 16:05:08
+ * @Last Modified time: 2019-06-23 19:25:59
  */
 
 namespace Zls\Swoole\Coroutine;
@@ -21,9 +21,9 @@ class PhpCoroutine extends Coroutine
     private $data;
 
     public function __construct($timeout, $sum)
-    { }
+    {}
 
-    public function run(string $name, \Closure $func)
+    public function run($name, \Closure $func)
     {
         $this->data[$name] = ['data' => $func()];
     }

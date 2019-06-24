@@ -3,7 +3,7 @@
  * @Author: seekwe
  * @Date:   2019-05-28 15:27:25
  * @Last Modified by:   seekwe
- * @Last Modified time: 2019-06-03 16:31:00
+ * @Last Modified time: 2019-06-23 19:27:01
  */
 
 namespace Zls\Swoole\Coroutine;
@@ -33,10 +33,20 @@ class SwooleCoroutine extends Coroutine
         c::sleep($time);
     }
 
-    public function run(string $name, \Closure $func)
+    /**
+     * 执行一个协程任务
+     * @param string|\Closure $name
+     * @param \Closure $func
+     * @return void
+     */
+    public function run($name, \Closure $func)
     {
+        if (is_callable($name)) {
+            $func = $name;
+            $name = null;
+        }
         if (!$name) {
-            $name = (string)$this->sum;
+            $name = (string) $this->sum;
         }
         ++$this->sum;
         $this->data[] = $name;
@@ -73,7 +83,7 @@ class SwooleCoroutine extends Coroutine
                 $err = method_exists($e, 'render') ? $e->render() : $e->getMessage();
                 /** @noinspection PhpUnhandledExceptionInspection */
                 throw new SwooleException($err, 500, 'Exception', $e->getFile(), $e->getLine());
-            } else { }
+            } else {}
             $data[$res['name']] = ['data' => $res['data'], 'err' => $err, 'time' => time() - $t];
         }
         $keys = array_keys($data);
