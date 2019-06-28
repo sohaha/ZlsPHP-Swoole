@@ -1,8 +1,10 @@
-<?php declare (strict_types = 1);
+<?php
+declare (strict_types=1);
 
 namespace Zls\Swoole;
 
 use Z;
+use Zls\Session\File;
 
 /*
  * 回调事件
@@ -21,7 +23,7 @@ class Event
 
     public function __construct(Main $main)
     {
-        $this->main = $main;
+        $this->main      = $main;
         $this->zlsConfig = z::config();
     }
 
@@ -37,17 +39,17 @@ class Event
     {
         if ($this->main->hotLoad) {
             try {
-                $rootPath = z::realPath(ZLS_APP_PATH, true);
-                $config = z::config();
+                $rootPath     = z::realPath(ZLS_APP_PATH, true);
+                $config       = z::config();
                 $ignoreFolder = [
                     $config->getStorageDirPath(),
                 ];
-                $paths = z::scanFile($rootPath, 99, function ($v, $filename) use ($rootPath, $ignoreFolder) {
+                $paths        = z::scanFile($rootPath, 99, function ($v, $filename) use ($rootPath, $ignoreFolder) {
                     $path = $rootPath . $filename;
 
                     return !in_array(z::realPath($path, true), $ignoreFolder, true) && is_dir($rootPath . $filename);
                 });
-                $files = [];
+                $files        = [];
                 $this->forPath($files, $paths, $rootPath);
                 /** @noinspection PhpComposerExtensionStubsInspection */
                 $inotify = inotify_init();
@@ -70,7 +72,7 @@ class Event
                 });
             } catch (\Exception $e) {
                 $errCode = swoole_last_error();
-                $errMsg = $e->getMessage() . ' [' . swoole_strerror($errCode) . ']';
+                $errMsg  = $e->getMessage() . ' [' . swoole_strerror($errCode) . ']';
                 echo '[' . date('y-m-d H:i:s') . '] ' . $errMsg . PHP_EOL;
             }
         }
@@ -79,9 +81,9 @@ class Event
     protected function forPath(array &$lists, array $paths, string $d)
     {
         $folder = z::arrayGet($paths, 'folder', []);
-        $path = [$d];
+        $path   = [$d];
         foreach ($folder as $k => $v) {
-            $_d = $d . $k . '/';
+            $_d     = $d . $k . '/';
             $path[] = $_d;
             if (!$v['folder']) {
             } else {
@@ -94,10 +96,10 @@ class Event
     private function sessionGc()
     {
         $sessionConfig = $this->zlsConfig->getSessionConfig();
-        $sessionState = z::arrayGet($sessionConfig, 'autostart');
-        /** @var \Zls\Session\File $SessionHandle */
+        $sessionState  = z::arrayGet($sessionConfig, 'autostart');
+        /** @var File $SessionHandle */
         if ($sessionState && $SessionHandle = $this->zlsConfig->getSessionHandle()) {
-            $fileSession = 'Zls\Session\File';
+            $fileSession   = 'Zls\Session\File';
             $isFileSession = get_class($SessionHandle) === $fileSession;
             if ($sessionState && $isFileSession) {
                 $lifetime = z::arrayGet($sessionConfig, 'lifetime', 600);
@@ -116,9 +118,9 @@ class Event
     public function onWorkerError(\swoole_server $serv, $worker_id, $worker_pid, $exit_code, $signal)
     {
         $err = [
-            'id' => $worker_id,
-            'pid' => $worker_pid,
-            'code' => $exit_code,
+            'id'     => $worker_id,
+            'pid'    => $worker_pid,
+            'code'   => $exit_code,
             'signal' => $signal,
         ];
         if ($exit_code !== 0) {

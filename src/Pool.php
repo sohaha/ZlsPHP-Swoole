@@ -1,4 +1,5 @@
-<?php declare (strict_types=1);
+<?php
+declare (strict_types=1);
 /*
  * @Author: seekwe
  * @Date:   2019-05-28 15:27:25

@@ -1,4 +1,4 @@
-<?php declare (strict_types = 1);
+<?php declare (strict_types=1);
 /*
  * @Author: seekwe
  * @Date:   2019-05-28 15:27:25
@@ -23,12 +23,12 @@ class SwooleCoroutine extends Coroutine
 
     public function __construct($timeout, $sum)
     {
-        $this->chan = new Channel($sum);
+        $this->chan    = new Channel($sum);
         $this->outtime = $timeout;
-        $this->data = [];
+        $this->data    = [];
     }
 
-    public static function sleep($time)
+    public function sleep($time)
     {
         c::sleep($time);
     }
@@ -36,7 +36,7 @@ class SwooleCoroutine extends Coroutine
     /**
      * 执行一个协程任务
      * @param string|\Closure $name
-     * @param \Closure $func
+     * @param \Closure        $func
      * @return void
      */
     public function run($name, \Closure $func)
@@ -46,7 +46,7 @@ class SwooleCoroutine extends Coroutine
             $name = null;
         }
         if (!$name) {
-            $name = (string) $this->sum;
+            $name = (string)$this->sum;
         }
         ++$this->sum;
         $this->data[] = $name;
@@ -79,28 +79,29 @@ class SwooleCoroutine extends Coroutine
             if (Z::arrayKeyExists('err', $res)) {
                 Z::log($res, "swoole/err");
                 /** @var \Exception $e */
-                $e = $res['err'];
+                $e   = $res['err'];
                 $err = method_exists($e, 'render') ? $e->render() : $e->getMessage();
                 /** @noinspection PhpUnhandledExceptionInspection */
                 throw new SwooleException($err, 500, 'Exception', $e->getFile(), $e->getLine());
-            } else {}
+            }
             $data[$res['name']] = ['data' => $res['data'], 'err' => $err, 'time' => time() - $t];
         }
-        $keys = array_keys($data);
+        $keys   = array_keys($data);
         $errKey = array_diff($this->data, $keys);
         foreach ($errKey as $v) {
             $data[$v] = ['data' => null, 'err' => 'timeout', 'time' => time() - $t];
         }
+
         return $data;
     }
 
-    public static function defer(\Closure $func)
+    public function defer(\Closure $func)
     {
         defer($func);
     }
 
-    public static function go(\Closure $func)
+    public function go(\Closure $func)
     {
-        go($func);
+        c::create($func);
     }
 }

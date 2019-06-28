@@ -1,11 +1,14 @@
 <?php
+declare(strict_types=1);
 
 namespace Zls\Swoole\Command;
 
 use Z;
+use Zls\Command\Command;
 use Zls\Swoole\Main;
+use Zls\Swoole\Main as swooleMain;
 
-class Swoole extends \Zls\Command\Command
+class Swoole extends Command
 {
     public function execute($args)
     {
@@ -47,16 +50,16 @@ class Swoole extends \Zls\Command\Command
         );
     }
 
-    public function stop($args)
+    public function stop($args) :void
     {
-        /** @var \Zls\Swoole\Main $SwooleMain */
+        /** @var swooleMain $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->stop($args);
     }
 
     public function restart($args)
     {
-        /** @var \Zls\Swoole\Main $SwooleMain */
+        /** @var swooleMain $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->stop($args);
         $SwooleMain->start($args);
@@ -64,21 +67,21 @@ class Swoole extends \Zls\Command\Command
 
     public function kill($args)
     {
-        /** @var \Zls\Swoole\Main $SwooleMain */
+        /** @var swooleMain $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->kill();
     }
 
     public function status($args)
     {
-        /** @var \Zls\Swoole\Main $SwooleMain */
+        /** @var swooleMain $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->status();
     }
 
     public function start($args)
     {
-        /** @var \Zls\Swoole\Main $SwooleMain */
+        /** @var swooleMain $SwooleMain */
         $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->start($args);
     }
@@ -89,7 +92,8 @@ class Swoole extends \Zls\Command\Command
     }
 
     public function example()
-    { }
+    {
+    }
 
     public function reload()
     {

@@ -1,4 +1,4 @@
-<?php declare (strict_types = 1);
+<?php declare (strict_types=1);
 /*
  * @Author: seekwe
  * @Date:   2019-05-28 15:27:25
@@ -21,7 +21,8 @@ class PhpCoroutine extends Coroutine
     private $data;
 
     public function __construct($timeout, $sum)
-    {}
+    {
+    }
 
     public function run($name, \Closure $func)
     {
@@ -33,12 +34,12 @@ class PhpCoroutine extends Coroutine
         return $this->data;
     }
 
-    public static function defer(\Closure $func)
+    public function defer(\Closure $func)
     {
         z::defer($func);
     }
 
-    public static function go(\Closure $func)
+    public function go(\Closure $func)
     {
         $func();
     }

@@ -1,4 +1,5 @@
-<?php declare (strict_types = 1);
+<?php
+declare (strict_types=1);
 /*
  * @Author: seekwe
  * @Date:   2019-05-28 15:27:25
@@ -36,15 +37,14 @@ trait Utils
 
     public function fileMIME($filename)
     {
-        $file = fopen($filename, "rb");
+        $file   = fopen($filename, "rb");
         $bytes4 = fread($file, 4);
         fclose($file);
-        $strInfo = @unpack("C4chars", $bytes4);
+        $strInfo  = @unpack("C4chars", $bytes4);
         $typeCode = dechex($strInfo['chars1']) .
             dechex($strInfo['chars2']) .
             dechex($strInfo['chars3']) .
             dechex($strInfo['chars4']);
-
         switch ($typeCode) {
             case "ffd8ffe0":
             case "ffd8ffe1":
@@ -90,8 +90,8 @@ trait Utils
                 $type = 'application/octet-stream;' . $typeCode;
                 break;
         }
-        return $type;
 
+        return $type;
         // $finfo = \finfo_open(FILEINFO_MIME);
         // return Z::tap(\finfo_file($finfo, $file), function () use ($finfo) {
         //     \finfo_close($finfo);

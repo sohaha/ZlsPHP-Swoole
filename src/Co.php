@@ -1,4 +1,5 @@
-<?php declare (strict_types = 1);
+<?php
+declare (strict_types=1);
 /*
  * @Author: seekwe
  * @Date:   2019-05-28 15:27:25
@@ -15,40 +16,41 @@ use Zls\Swoole\Coroutine\PhpCoroutine;
 
 class Co
 {
+    /** @var PhpCoroutine|SwooleCoroutine */
+    private static $co;
+
+    public function __construct($timeout = 5, $sum = 1)
+    {
+        self::$co = Z::isSwoole() ? new SwooleCoroutine($timeout, $sum) : new PhpCoroutine($timeout, $sum);
+    }
+
+    public function getInstance()
+    {
+        return self::$co;
+    }
+
     public static function instance($timeout = 5, $sum = 1)
     {
-        if (z::isSwoole()) {
-            return new Coroutine\SwooleCoroutine($timeout, $sum);
-        } else {
-            return new Coroutine\PhpCoroutine($timeout, $sum);
-        }
+        return (new self($timeout, $sum))->getInstance();
     }
 
     public static function sleep($time)
     {
-        if (z::isSwoole()) {
-            SwooleCoroutine::sleep($time);
-        } else {
-            PhpCoroutine::sleep($time);
-        }
+        self::$co->sleep($time);
     }
 
     public static function go(\Closure $func)
     {
-        if (z::isSwoole()) {
-            SwooleCoroutine::go($func);
-        } else {
-            PhpCoroutine::go($func);
-        }
+        self::$co->go($func);
     }
 
     public static function sync(\Closure $func)
     {
-        return (z::isSwoole()) ? SwooleCoroutine::sync($func) : PhpCoroutine::sync($func);
+        return self::$co->sync($func);
     }
 
     public static function wait(Coroutine $task)
     {
-        return (z::isSwoole()) ? SwooleCoroutine::wait($task) : PhpCoroutine::wait($task);
+        return self::$co->wait($task);
     }
 }

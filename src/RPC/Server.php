@@ -1,4 +1,5 @@
-<?php declare (strict_types=1);
+<?php
+declare (strict_types=1);
 /*
  * @Author: seekwe
  * @Date:   2019-05-31 12:59:44
@@ -8,18 +9,19 @@
 
 namespace Zls\Swoole\RPC;
 
+use swoole\Server as swooleServer;
 use Z;
 use Zls\Swoole\Utils;
 
 class Server
 {
     use Utils;
-    /** @var \swoole_server|\swoole_http_server|\swoole_websocket_server $server */
+    /** @var swooleServer|\swoole_http_server|\swoole_websocket_server $server */
     private $server;
 
     public function __construct($server, $config)
     {
-        /** @var $server \swoole_server */
+        /** @var $server swooleServer */
         $this->server = $server;
         $server->set([
             'open_http_protocol' => false,
@@ -40,7 +42,7 @@ class Server
         }
         $app    = Z::arrayGet($config, 'rpc_server.method', []);
         $appKey = array_keys($app);
-        $server->on("receive", function (\swoole_server $serv, $fd, $from_id, $data) use ($app, $appKey, $pack, $unpack) {
+        $server->on("receive", function (swooleServer $serv, $fd, $from_id, $data) use ($app, $appKey, $pack, $unpack) {
             $result = $err = null;
             $id     = 0;
             $info   = $unpack($data);

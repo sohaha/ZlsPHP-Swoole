@@ -1,9 +1,15 @@
-<?php declare (strict_types = 1);
+<?php
+declare(strict_types=1);
 
 namespace Zls\Swoole;
 
+use Exception;
+use Swoole\Http\Request;
+use swoole\Http\Response;
+use swoole\Server;
 use Z;
 use Zls;
+use Zls_Config;
 
 /*
  * Zls
@@ -20,13 +26,13 @@ class Http
     use Utils;
 
     /**
-     * @param \swoole_http_request  $request
-     * @param \swoole_http_response $response
-     * @param \swoole_server        $server
-     * @param \Zls_Config           $zlsConfig
+     * @param Request  $request
+     * @param Response $response
+     * @param Server        $server
+     * @param Zls_Config           $zlsConfig
      * @param array                 $config
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public function onRequest($request, $response, $server, $zlsConfig, $config = [])
     {
@@ -70,7 +76,9 @@ class Http
                 z::sessionStart();
             }
             $zlsConfig->bootstrap();
-            echo Zls::runWeb();
+            echo Zls::resultException(function () {
+                return Zls::runWeb();
+            });
         } catch (SwooleException $e) {
             echo $e->getMessage();
         }
@@ -80,5 +88,4 @@ class Http
         Z::resetZls();
         return $content;
     }
-
 }
