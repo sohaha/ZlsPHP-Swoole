@@ -11,51 +11,42 @@ use Z;
 use Zls;
 use Zls_Config;
 
-/*
- * Zls
- * @author        影浅
- * @email         seekwe@gmail.com
- * @copyright     Copyright (c) 2015 - 2017, 影浅, Inc.
- * @link          ---
- * @since         v0.0.1
- * @updatetime    2017-08-28 18:07
- */
-
 class Http
 {
     use Utils;
 
     /**
-     * @param Request  $request
-     * @param Response $response
-     * @param Server        $server
-     * @param Zls_Config           $zlsConfig
-     * @param array                 $config
+     * @param Request    $request
+     * @param Response   $response
+     * @param Server     $server
+     * @param Zls_Config $zlsConfig
+     * @param array      $config
+     *
      * @return string
      * @throws Exception
      */
-    public function onRequest($request, $response, $server, $zlsConfig, $config = [])
+    public function onRequest($request, $response, $server, $zlsConfig, $config = []): string
     {
-        z::di()->bind('SwooleResponse', function () use ($response) {
+        z::di()->bind('SwooleResponse', static function () use ($response) {
             return $response;
         });
         /** @noinspection PhpUndefinedFieldInspection */
         $_SERVER = array_change_key_case($request->server, CASE_UPPER);
         /** @noinspection PhpUndefinedFieldInspection */
         $_HEADER = array_change_key_case($request->header, CASE_UPPER);
-        $_GET = isset($request->get) ? $request->get : [];
-        $_POST = isset($request->post) ? $request->post : [];
-        $_FILES = isset($request->files) ? $request->files : [];
-        $_COOKIE = isset($request->cookie) ? $request->cookie : [];
+        $_GET    = $request->get ?? [];
+        $_POST   = $request->post ?? [];
+        $_FILES  = $request->files ?? [];
+        $_COOKIE = $request->cookie ?? [];
         foreach ($_HEADER as $key => $value) {
             $_SERVER['HTTP_' . str_replace('-', '_', $key)] = $value;
         }
         $_SERVER['REMOTE_ADDR'] = z::arrayGet($_SERVER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'X-REAL-IP')));
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $_SERVER['ZLS_POSTRAW'] = $request->rawContent();
-        $pathInfo = z::arrayGet($_SERVER, 'PATH_INFO');
-        $_SERVER['PATH_INFO'] = $pathInfo;
-        $_SESSION = [];
+        $pathInfo               = z::arrayGet($_SERVER, 'PATH_INFO');
+        $_SERVER['PATH_INFO']   = $pathInfo;
+        $_SESSION               = [];
         /** @noinspection PhpUndefinedMethodInspection */
         $zlsConfig->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
         if (z::arrayGet($config, 'watch') && '1' === z::arrayGet($_GET, '_reload')) {
@@ -63,12 +54,12 @@ class Http
             $server->reload();
         }
         Z::setGlobalData([
-            'server' => $_SERVER,
-            'get' => $_GET,
-            'post' => $_POST,
-            'files' => isset($_FILES) ? $_FILES : [],
-            'cookie' => isset($_COOKIE) ? $_COOKIE : [],
-            'session' => isset($_SESSION) ? $_SESSION : [],
+            'server'  => $_SERVER,
+            'get'     => $_GET,
+            'post'    => $_POST,
+            'files'   => $_FILES ?? [],
+            'cookie'  => $_COOKIE ?? [],
+            'session' => $_SESSION ?? [],
         ]);
         ob_start();
         try {
@@ -76,16 +67,16 @@ class Http
                 z::sessionStart();
             }
             $zlsConfig->bootstrap();
-            echo Zls::resultException(function () {
+            echo Zls::resultException(static function () {
                 return Zls::runWeb();
             });
         } catch (SwooleException $e) {
             echo $e->getMessage();
         }
-        $content = ob_get_contents();
-        ob_end_clean();
+        $content = ob_get_clean();
         Z::eventEmit('ZLS_DEFER');
         Z::resetZls();
+
         return $content;
     }
 }

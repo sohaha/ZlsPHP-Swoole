@@ -1,11 +1,5 @@
 <?php
 declare (strict_types=1);
-/*
- * @Author: seekwe
- * @Date:   2019-05-31 12:59:44
- * @Last Modified by:   seekwe
- * @Last Modified time: 2019-06-04 17:18:28
- */
 
 namespace Zls\Swoole\RPC;
 
@@ -20,24 +14,24 @@ class Client
     {
         /** @var \swoole_client $client */
         if (!$client = self::get($clientName)) {
-            return [null, "Client connection failed"];
+            return [null, 'Client connection failed'];
         }
-        $data = ["method" => $method, "params" => [$params], "id" => $id];
+        $data = ['method' => $method, 'params' => [$params], 'id' => $id];
         /** @noinspection PhpComposerExtensionStubsInspection */
         if ($rs = $client->send(@json_encode($data, JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES))) {
             if ($recv = $client->recv()) {
                 /** @noinspection PhpComposerExtensionStubsInspection */
                 if ($recv = @json_decode($recv, true)) {
-                    return Z::tap([$recv['result'], $recv['error']], function () use ($client) {
+                    return Z::tap([$recv['result'], $recv['error']], static function () use ($client) {
                         $client->close();
                     });
-                } else {
-                    return [null, "Data format error, non-json format"];
                 }
+
+                return [null, 'Data format error, non-json format'];
             }
         }
 
-        return [null, "Failed to send"];
+        return [null, 'Failed to send'];
     }
 
 
@@ -55,11 +49,11 @@ class Client
         if (isset(self::$clients[$clientName])) {
             $option = self::$clients[$clientName];
             $addr   = explode(':', $option['addr']);
-            if (is_null($timeout)) {
+            if ($timeout === null) {
                 $timeout = $option['timeout'];
             }
             $client = new swoole_client(SWOOLE_TCP | SWOOLE_KEEP);
-            $ip     = z::arrayGet($addr, 0, "");
+            $ip     = z::arrayGet($addr, 0, '');
             $port   = (int)z::arrayGet($addr, 1, 0);
             if ($client->connect($ip, $port, $timeout)) {
                 return $client;

@@ -27,7 +27,7 @@ class Event
         $this->zlsConfig = z::config();
     }
 
-    public function onWorkerStart($ws, $workerId)
+    public function onWorkerStart($ws, $workerId): void
     {
         if ($workerId === 0) {
             $this->inotify();
@@ -35,7 +35,7 @@ class Event
         }
     }
 
-    private function inotify()
+    private function inotify(): void
     {
         if ($this->main->hotLoad) {
             try {
@@ -78,7 +78,7 @@ class Event
         }
     }
 
-    protected function forPath(array &$lists, array $paths, string $d)
+    protected function forPath(array &$lists, array $paths, string $d): void
     {
         $folder = z::arrayGet($paths, 'folder', []);
         $path   = [$d];
@@ -93,7 +93,7 @@ class Event
         $lists = array_merge($lists, $path);
     }
 
-    private function sessionGc()
+    private function sessionGc(): void
     {
         $sessionConfig = $this->zlsConfig->getSessionConfig();
         $sessionState  = z::arrayGet($sessionConfig, 'autostart');
@@ -110,12 +110,12 @@ class Event
         }
     }
 
-    public function onWorkerStop()
+    public function onWorkerStop(): void
     {
         // $this->log('onWorkerStop');
     }
 
-    public function onWorkerError(\swoole_server $serv, $worker_id, $worker_pid, $exit_code, $signal)
+    public function onWorkerError(\swoole_server $serv, $worker_id, $worker_pid, $exit_code, $signal): void
     {
         $err = [
             'id'     => $worker_id,
@@ -134,7 +134,7 @@ class Event
      * 正常结束
      * @param \swoole_server $server
      */
-    public function onShutdown($server)
+    public function onShutdown($server): void
     {
     }
 
@@ -143,16 +143,16 @@ class Event
      * @param \swoole_server $server
      * @desc cli_set_process_title(z::config('swoole.pname'));
      */
-    public function onStart($server)
+    public function onStart($server): void
     {
     }
 
-    public function onWorkerExit()
+    public function onWorkerExit(): void
     {
 
     }
 
-    public function onConnect()
+    public function onConnect(): void
     {
 
     }
@@ -162,32 +162,32 @@ class Event
 
     }
 
-    public function onTask()
+    public function onTask(): void
     {
 
     }
 
-    public function onFinish()
+    public function onFinish(): void
     {
 
     }
 
-    public function onPipeMessage()
+    public function onPipeMessage(): void
     {
 
     }
 
-    public function onManagerStart()
+    public function onManagerStart(): void
     {
 
     }
 
-    public function onManagerStop()
+    public function onManagerStop(): void
     {
 
     }
 
-    public function onClose($server, $fd, $reactorId)
+    public function onClose($server, $fd, $reactorId): void
     {
         z::resetZls();
     }

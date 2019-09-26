@@ -1,10 +1,5 @@
-<?php declare (strict_types=1);
-/*
- * @Author: seekwe
- * @Date:   2019-05-28 15:27:25
- * @Last Modified by:   seekwe
- * @Last Modified time: 2019-06-23 19:27:01
- */
+<?php
+declare (strict_types=1);
 
 namespace Zls\Swoole\Coroutine;
 
@@ -28,29 +23,31 @@ class SwooleCoroutine extends Coroutine
         $this->data    = [];
     }
 
-    public function sleep($time)
+    public function sleep($time): void
     {
         c::sleep($time);
     }
 
     /**
      * 执行一个协程任务
+     *
      * @param string|\Closure $name
      * @param \Closure        $func
+     *
      * @return void
      */
     public function run($name, \Closure $func)
     {
         if (is_callable($name)) {
             $func = $name;
-            $name = null;
+            $name = '';
         }
         if (!$name) {
             $name = (string)$this->sum;
         }
         ++$this->sum;
         $this->data[] = $name;
-        self::go(function () use ($name, $func) {
+        $this->go(function () use ($name, $func) {
             try {
                 $res = $this->chan->push(['name' => $name, 'data' => $func()], $this->outtime);
             } catch (\Zls_Exception_Exit $e) {
@@ -60,7 +57,7 @@ class SwooleCoroutine extends Coroutine
                 $res = $this->chan->push(['name' => $name, 'data' => false, 'err' => $e], $this->outtime);
             }
             if ($res === false) {
-                z::log("Channel full: " . $this->chan->errCode);
+                z::log('Channel full: ' . $this->chan->errCode);
             }
         });
     }
@@ -77,7 +74,7 @@ class SwooleCoroutine extends Coroutine
                 break;
             }
             if (Z::arrayKeyExists('err', $res)) {
-                Z::log($res, "swoole/err");
+                Z::log($res, 'swoole/err');
                 /** @var \Exception $e */
                 $e   = $res['err'];
                 $err = method_exists($e, 'render') ? $e->render() : $e->getMessage();

@@ -55,7 +55,7 @@ class Pool
      * @param callable      $closed
      * @param callable|null $detect
      */
-    public function init($size, callable $init, callable $closed, callable $detect = null)
+    public function init($size, callable $init, callable $closed, callable $detect = null): void
     {
         $this->len = 0;
         if (is_array($size)) {
@@ -73,7 +73,7 @@ class Pool
         for ($i = 0; $i < $min; $i++) {
             $this->co->run((string)$i, function () use ($init, $i) {
                 $obj = $init();
-                if (!is_null($obj)) {
+                if ($obj !== null) {
                     ++$this->len;
                     $this->put($obj);
                 }
@@ -81,14 +81,14 @@ class Pool
         }
     }
 
-    public function pool()
+    public function pool(): Channel
     {
         return $this->pool;
     }
 
-    public function put($obj)
+    public function put($obj): void
     {
-        if (!is_null($obj)) {
+        if ($obj !== null) {
             ++$this->len;
             if ($this->pool->length() <= $this->max) {
                 $this->pool->push($obj);
@@ -96,7 +96,7 @@ class Pool
                 $closed = $this->closed;
                 --$this->len;
                 --$this->total;
-                if (!!$closed && is_callable($closed)) {
+                if ((bool)$closed && is_callable($closed)) {
                     $closed($obj);
                 }
             }
@@ -119,20 +119,20 @@ class Pool
             ++$this->total;
             $init = $this->initFn;
             $obj  = $init();
-            if (!is_null($obj)) {
-
-            }
+            // if ($obj !== null) {
+            //
+            // }
         } else {
             // ++$this->len;
             $obj = $this->pool->pop($timeout);
         }
-        Z::throwIf(!$obj, new PoolException("Pool length <= 0"));
+        Z::throwIf(!$obj, new PoolException('Pool length <= 0'));
 
         return $obj;
     }
 
-    public function info()
+    public function info(): array
     {
-        return ["len" => $this->len, "total" => $this->total, "length" => $this->pool->length()];
+        return ['len' => $this->len, 'total' => $this->total, 'length' => $this->pool->length()];
     }
 }

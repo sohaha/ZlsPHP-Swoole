@@ -11,8 +11,8 @@ namespace Zls\Swoole;
 
 use Z;
 use Zls\Swoole\Coroutine\Coroutine;
-use Zls\Swoole\Coroutine\SwooleCoroutine;
 use Zls\Swoole\Coroutine\PhpCoroutine;
+use Zls\Swoole\Coroutine\SwooleCoroutine;
 
 class Co
 {
@@ -34,23 +34,25 @@ class Co
         return (new self($timeout, $sum))->getInstance();
     }
 
-    public static function sleep($time)
+    public static function sleep($time): void
     {
         self::$co->sleep($time);
     }
 
-    public static function go(\Closure $func)
+    public static function go(\Closure $func): void
     {
         self::$co->go($func);
     }
 
     public static function sync(\Closure $func)
     {
+        /** @noinspection StaticInvocationViaThisInspection */
         return self::$co->sync($func);
     }
 
     public static function wait(Coroutine $task)
     {
+        /** @noinspection StaticInvocationViaThisInspection */
         return self::$co->wait($task);
     }
 }

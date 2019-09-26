@@ -31,15 +31,15 @@ class WebSocket
      * @param $method
      * @return string
      */
-    private function getController($controller, $method)
-    {
-        $controllerObject = Z::factory(\Zls::getConfig()->getControllerDirName() . '_' . $controller);
-        if (method_exists($controllerObject, 'before')) {
-            $controllerObject->before($method, $controller);
-        }
-        $_method = \Zls::getConfig()->getMethodPrefix() . $method;
-        $content = $controllerObject->$_method();
-
-        return $this->json($content, $controller, $method);
-    }
+    // private function getController($controller, $method)
+    // {
+    //     $controllerObject = Z::factory(\Zls::getConfig()->getControllerDirName() . '_' . $controller);
+    //     if (method_exists($controllerObject, 'before')) {
+    //         $controllerObject->before($method, $controller);
+    //     }
+    //     $_method = \Zls::getConfig()->getMethodPrefix() . $method;
+    //     $content = $controllerObject->$_method();
+    //
+    //     return $this->json($content, $controller, $method);
+    // }
 }

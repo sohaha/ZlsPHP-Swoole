@@ -1,11 +1,5 @@
 <?php
 declare(strict_types=1);
-/*
- * @Author: seekwe
- * @Date:   2019-05-28 15:27:25
- * @Last Modified by:   seekwe
- * @Last Modified time: 2019-06-28 18:11:14
- */
 
 namespace Zls\Swoole\Coroutine;
 
@@ -29,7 +23,7 @@ abstract class Coroutine
 
     abstract public function go(\Closure $func);
 
-    public function sleep($time)
+    public function sleep($time): void
     {
         sleep($time);
     }

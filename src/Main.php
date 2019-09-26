@@ -1,11 +1,5 @@
 <?php
 declare (strict_types=1);
-/*
- * @Author: seekwe
- * @Date:   2019-05-28 15:27:25
- * @Last Modified by:   seekwe
- * @Last Modified time: 2019-06-03 13:11:42
- */
 
 namespace Zls\Swoole;
 
@@ -14,20 +8,20 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use swoole\Http\Response;
+use Swoole\Http\Server as httpServer;
 use swoole\Process as swooleProcess;
 use Swoole\Runtime;
 use Swoole\Server;
 use Swoole\Websocket\Server as websocketServer;
-use Swoole\Http\Server as httpServer;
 use Throwable;
 use Z;
-use Zls\Session\File;
+use Zls\Session\File as SessionFile;
 use Zls_Config;
+use Zls\Swoole\Http;
+use Zls\Swoole\Event;
 
 class Main
 {
-
-
     use Utils;
     public $serverOn = [];
     public $hotLoad = false;
@@ -37,10 +31,14 @@ class Main
     protected $server;
     protected $pidFile;
     protected $staticLocations;
+    private $appName;
 
     public function __construct()
     {
-        $this->pidFile = Z::realPathMkdir(Z::config()->getStorageDirPath() . 'swoole', true, false, false) . 'swooleServer.pid';
+        $config        = Z::config();
+        $appName       = explode('/', ZLS_PATH);
+        $this->appName = Z::arrayGet($appName, count($appName) - 3, 'app');
+        $this->pidFile = Z::realPathMkdir($config->getStorageDirPath() . 'swoole', true, false, false) . 'swooleServer.pid';
         $this->initColor();
     }
 
@@ -49,7 +47,7 @@ class Main
         $this->printLog('Kill...', 'dark_gray');
         if ($pid = $this->existProcess()) {
             preg_match_all('/\d+/', Z::command("pstree -p {$pid}"), $pids);
-            $pids = join(' ', $pids[0]);
+            $pids = implode(' ', $pids[0]);
             Z::command("kill -9 {$pids}", '', true, false);
         } else {
             $this->printLog('Did not find the pid file, please manually view the process and end.', 'red');
@@ -105,7 +103,7 @@ class Main
     {
         /** @var Zls_Config $zlsConfig */
         $zlsConfig = Z::config();
-        $this->config($zlsConfig);
+        $this->swooleConfig($zlsConfig);
         if (!$this->existProcess()) {
             $daemonize = true;
             if (Z::arrayGet($args, ['--no-daemonize', 'N', 'n'], false)) {
@@ -153,10 +151,8 @@ class Main
                 $zlsConfig->setZMethods('swoole', function () {
                     return $this->server;
                 });
-                $appName           = explode('/', ZLS_PATH);
-                $appName           = Z::arrayGet($appName, count($appName) - 3, 'app');
                 $defaultProperties = [
-                    'pname'                 => 'zls_swoole_' . $appName,
+                    'pname'                 => 'zls_swoole_' . $this->appName,
                     'document_root'         => Z::realPath(ZLS_PATH),
                     'enable_static_handler' => true,
                     'daemonize'             => $daemonize,
@@ -176,16 +172,16 @@ class Main
                 if (is_callable($runBefore)) {
                     $runBefore($server, $this->config);
                 }
-                if (!!Z::arrayGet($this->config, 'rpc_server.enable')) {
+                if ((bool)Z::arrayGet($this->config, 'rpc_server.enable')) {
                     $rpcServerAddr = Z::arrayGet($this->config, 'rpc_server.addr', "0.0.0.0:8081");
-                    $addr          = explode(":", $rpcServerAddr);
+                    $addr          = explode(':', $rpcServerAddr);
                     $this->printStrN('[ Swoole RPC ]: tcp://' . $rpcServerAddr, 'yellow', '');
                     $rpc = new RPC\Server($server->listen(Z::arrayGet($addr, 0), (int)Z::arrayGet($addr, 1), SWOOLE_SOCK_TCP), $this->config);
                     $zlsConfig->setZMethods('swooleRPC', function () use ($rpc) {
                         return $rpc;
                     });
                 }
-                if (!!Z::arrayGet($this->config, 'rpc_client.enable')) {
+                if ((bool)Z::arrayGet($this->config, 'rpc_client.enable')) {
                     $clients = Z::arrayGet($this->config, 'rpc_client.client', []);
                     if ($clients) {
                         foreach ($clients as $cName => $client) {
@@ -203,7 +199,7 @@ class Main
         }
     }
 
-    private function config(Zls_Config $zlsConfig): void
+    private function swooleConfig(Zls_Config $zlsConfig): void
     {
         if ($zlsConfig->find('swoole')) {
             $this->config = Z::config('swoole');
@@ -212,7 +208,7 @@ class Main
         }
     }
 
-    private function setProcessTitle($title)
+    private function setProcessTitle($title): void
     {
         if (function_exists('cli_set_process_title')) {
             @cli_set_process_title($title);
@@ -227,8 +223,8 @@ class Main
         $zlsConfig     = Z::config();
         $sessionConfig = $zlsConfig->getSessionConfig();
         $sessionState  = Z::arrayGet($sessionConfig, 'autostart');
-        $fileSession   = 'Zls\Session\File';
-        /** @var File $SessionHandle */
+        $fileSession   = SessionFile::class;
+        /** @var SessionFile $SessionHandle */
         if ($sessionState && !$SessionHandle = $zlsConfig->getSessionHandle()) {
             $SessionHandle = new $fileSession;
             $zlsConfig->setSessionHandle($SessionHandle);
@@ -248,7 +244,7 @@ class Main
             $this->bootstrap($appdir);
         });
         /** @var Http $http */
-        $http            = Z::factory('Zls\Swoole\Http');
+        $http            = Z::factory(Http::class);
         $methodUriSubfix = $zlsConfig->getMethodUriSubfix();
         $server->on('request', function ($request, $response) use ($zlsConfig, $server, $http, $methodUriSubfix) {
             /** @var Response $response */
@@ -271,7 +267,7 @@ class Main
                 if (is_file($file)) {
                     $response->sendfile($file);
                 } else {
-                    $response->write("404 Not Found");
+                    $response->write('404 Not Found');
                     $response->status(404);
                     $response->end();
                 }
@@ -288,9 +284,9 @@ class Main
         return $this->printStr('[ Swoole Web ]', 'blue', '') . ': ' . $url;
     }
 
-    private function LocaFile($pathinfo)
+    private function LocaFile($pathinfo): bool
     {
-        if (!!$this->staticLocations && SWOOLE_VERSION < '4.4.0') {
+        if ((bool)$this->staticLocations && SWOOLE_VERSION < '4.4.0') {
             foreach ($this->staticLocations as $path) {
                 if (Z::strBeginsWith($pathinfo, $path)) {
                     return true;
@@ -301,9 +297,9 @@ class Main
         return false;
     }
 
-    private function on($method, callable $callable)
+    private function on($method, callable $callable): void
     {
-        if (in_array($method, array_keys($this->serverOn))) {
+        if (array_key_exists($method, $this->serverOn)) {
             $callable = function (...$v) use ($callable, $method) {
                 $callable(...$v);
                 $this->serverOn[$method](...$v);
@@ -322,13 +318,14 @@ class Main
 
     /**
      * 绑定事件回调
+     *
      * @param string $prefix
      * @url https://wiki.swoole.com/wiki/page/41.html
      */
     private function BindingEvent($prefix = 'on'): void
     {
         try {
-            $EventClass   = new ReflectionClass('Zls\Swoole\Event');
+            $EventClass   = new ReflectionClass(Event::class);
             $EventMethods = $EventClass->getMethods(ReflectionMethod::IS_PUBLIC);
             /** @var Event $EventInstance */
             $EventInstance = $EventClass->newInstance($this);
@@ -355,12 +352,10 @@ class Main
 
     private function getProcess(): array
     {
-        $processes = [];
-
-        return $processes;
+        return [];
     }
 
-    public function reload()
+    public function reload(): void
     {
         if ($pid = @file_get_contents($this->pidFile)) {
             if (extension_loaded('posix')) {

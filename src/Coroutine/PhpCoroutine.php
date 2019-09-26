@@ -1,14 +1,8 @@
-<?php declare (strict_types=1);
-/*
- * @Author: seekwe
- * @Date:   2019-05-28 15:27:25
- * @Last Modified by:   seekwe
- * @Last Modified time: 2019-06-23 19:25:59
- */
+<?php
+declare (strict_types=1);
 
 namespace Zls\Swoole\Coroutine;
 
-use Swoole\Coroutine as c;
 use Swoole\Coroutine\Channel;
 use Z;
 
@@ -24,7 +18,7 @@ class PhpCoroutine extends Coroutine
     {
     }
 
-    public function run($name, \Closure $func)
+    public function run($name, \Closure $func): void
     {
         $this->data[$name] = ['data' => $func()];
     }
