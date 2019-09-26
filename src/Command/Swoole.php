@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace Zls\Swoole\Command;
 
-use Swoole\Http\Server;
 use Z;
 use Zls\Command\Command;
+use Zls\Swoole\Http as SwooleHttp;
+use Zls\Swoole\Main;
 use Zls\Swoole\Main as swooleMain;
 
 class Swoole extends Command
@@ -14,10 +15,9 @@ class Swoole extends Command
     {
         try {
             $active = z::arrayGet($args, 2, 'help');
-            if (class_exists(Server::class)) {
+            if (class_exists(SwooleHttp::class)) {
                 if (method_exists($this, $active)) {
-                    $swooleMain = new swooleMain();
-                    $this->$active($swooleMain, $args);
+                    $this->$active($args);
                 } else {
                     //$this->error('Warning: unknown method');
                     $this->help($args);
@@ -30,7 +30,7 @@ class Swoole extends Command
         }
     }
 
-    public function init(swooleMain $SwooleMain, $args): void
+    public function init($args): void
     {
         $force      = Z::arrayGet($args, ['-force', 'F']);
         $file       = ZLS_APP_PATH . 'config/default/swoole.php';
@@ -44,36 +44,46 @@ class Swoole extends Command
                     $this->success('config: ' . Z::safePath($file));
                     $this->printStr('Please modify according to the situation');
                 } else {
-                    $this->error('config already exists, or insufficient permissions');
+                    $this->error('Profile already exists, or insufficient permissions');
                 }
             },
             null
         );
     }
 
-    public function stop(swooleMain $SwooleMain, $args): void
+    public function stop($args): void
     {
+        /** @var swooleMain $SwooleMain */
+        $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->stop($args);
     }
 
-    public function restart(swooleMain $SwooleMain, $args): void
+    public function restart($args): void
     {
+        /** @var swooleMain $SwooleMain */
+        $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->stop($args);
         $SwooleMain->start($args);
     }
 
-    public function kill(swooleMain $SwooleMain, $args): void
+    public function kill($args): void
     {
+        /** @var swooleMain $SwooleMain */
+        $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->kill();
     }
 
-    public function status(swooleMain $SwooleMain, $args): void
+    public function status($args): void
     {
+        /** @var swooleMain $SwooleMain */
+        $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->status();
     }
 
-    public function start(swooleMain $SwooleMain, $args): void
+    public function start($args): void
     {
+        /** @var swooleMain $SwooleMain */
+        $SwooleMain = z::extension('Swoole\Main');
         $SwooleMain->start($args);
     }
 
@@ -82,8 +92,14 @@ class Swoole extends Command
         return [];
     }
 
-    public function reload(swooleMain $SwooleMain, $args): void
+    public function example(): array
     {
+        return [];
+    }
+
+    public function reload(): void
+    {
+        $SwooleMain = new Main();
         $SwooleMain->reload();
     }
 
