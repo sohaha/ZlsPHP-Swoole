@@ -2,8 +2,8 @@
   "name": "zls/swoole",
   "description": "ZlsPHP Swoole模式",
   "type": "library",
-  "license": "MIT",
   "minimum-stability": "dev",
+  "license": "Apache-2.0",
   "authors": [
     {
       "name": "影浅",
@@ -16,5 +16,7 @@
     }
   },
   "require": {
+    "php": ">=7.2",
+    "ext-swoole": ">=4.4",
   }
 }
