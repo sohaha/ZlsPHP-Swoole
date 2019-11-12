@@ -1,41 +1,39 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Table;
 
-class Row
+/**
+ * @since 4.4.8
+ */
+class Row implements \ArrayAccess
 {
 
+    // property of the class Row
     public $key;
     public $value;
 
     /**
-     * @param $offset[required]
+     * @param int $offset
      * @return mixed
      */
-    public function offsetExists($offset){}
+    public function offsetExists(int $offset){}
 
     /**
-     * @param $offset[required]
+     * @param int $offset
      * @return mixed
      */
-    public function offsetGet($offset){}
+    public function offsetGet(int $offset){}
 
     /**
-     * @param $offset[required]
-     * @param $value[required]
+     * @param int $offset
+     * @param $value
      * @return mixed
      */
-    public function offsetSet($offset, $value){}
+    public function offsetSet(int $offset, $value){}
 
     /**
-     * @param $offset[required]
+     * @param int $offset
      * @return mixed
      */
-    public function offsetUnset($offset){}
-
-    /**
-     * @return mixed
-     */
-    public function __destruct(){}
-
-
+    public function offsetUnset(int $offset){}
 }

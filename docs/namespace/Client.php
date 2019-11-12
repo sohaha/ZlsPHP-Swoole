@@ -1,16 +1,22 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole;
 
+/**
+ * @since 4.4.8
+ */
 class Client
 {
-    const MSG_OOB = 1;
-    const MSG_PEEK = 2;
-    const MSG_DONTWAIT = 64;
-    const MSG_WAITALL = 256;
-    const SHUT_RDWR = 2;
-    const SHUT_RD = 0;
-    const SHUT_WR = 1;
+    // constants of the class Client
+    public const MSG_OOB = 1;
+    public const MSG_PEEK = 2;
+    public const MSG_DONTWAIT = 64;
+    public const MSG_WAITALL = 256;
+    public const SHUT_RDWR = 2;
+    public const SHUT_RD = 0;
+    public const SHUT_WR = 1;
 
+    // property of the class Client
     public $errCode;
     public $sock;
     public $reuse;
@@ -18,101 +24,80 @@ class Client
     public $type;
     public $id;
     public $setting;
-    private $onConnect;
-    private $onError;
-    private $onReceive;
-    private $onClose;
-    private $onBufferFull;
-    private $onBufferEmpty;
 
     /**
-     * @param $type[required]
-     * @param $async[optional]
+     * @param $type
+     * @param $async
+     * @param $id
      * @return mixed
      */
-    public function __construct($type, $async = null){}
+    public function __construct($type, $async = null, $id = null){}
 
     /**
+     * @param array $settings
      * @return mixed
      */
-    public function __destruct(){}
+    public function set(array $settings){}
 
     /**
-     * @param $settings[required]
+     * @param string $host
+     * @param int $port
+     * @param float $timeout
+     * @param $sock_flag
      * @return mixed
      */
-    public function set($settings){}
+    public function connect(string $host, int $port = null, float $timeout = null, $sock_flag = null){}
 
     /**
-     * @param $host[required]
-     * @param $port[optional]
-     * @param $timeout[optional]
-     * @param $sock_flag[optional]
+     * @param int $size
+     * @param $flag
      * @return mixed
      */
-    public function connect($host, $port = null, $timeout = null, $sock_flag = null){}
+    public function recv(int $size = null, $flag = null){}
 
     /**
-     * @param $size[optional]
-     * @param $flag[optional]
-     * @return mixed
-     */
-    public function recv($size = null, $flag = null){}
-
-    /**
-     * @param $data[required]
-     * @param $flag[optional]
+     * @param mixed $data
+     * @param $flag
      * @return mixed
      */
     public function send($data, $flag = null){}
 
     /**
-     * @param $dst_socket[required]
+     * @param string $filename
+     * @param int $offset
+     * @param int $length
      * @return mixed
      */
-    public function pipe($dst_socket){}
+    public function sendfile(string $filename, int $offset = null, int $length = null){}
 
     /**
-     * @param $filename[required]
-     * @param $offset[optional]
-     * @param $length[optional]
+     * @param string $ip
+     * @param int $port
+     * @param mixed $data
      * @return mixed
      */
-    public function sendfile($filename, $offset = null, $length = null){}
+    public function sendto(string $ip, int $port, $data){}
 
     /**
-     * @param $ip[required]
-     * @param $port[required]
-     * @param $data[required]
-     * @return mixed
-     */
-    public function sendto($ip, $port, $data){}
-
-    /**
-     * @return mixed
-     */
-    public function sleep(){}
-
-    /**
-     * @return mixed
-     */
-    public function wakeup(){}
-
-    /**
-     * @return mixed
-     */
-    public function pause(){}
-
-    /**
-     * @return mixed
-     */
-    public function resume(){}
-
-    /**
-     * @param $how[required]
+     * @param $how
      * @return mixed
      */
     public function shutdown($how){}
+
+    /**
+     * @return mixed
+     */
+    public function enableSSL(){}
+
+    /**
+     * @return mixed
+     */
+    public function getPeerCert(){}
+
+    /**
+     * @return mixed
+     */
+    public function verifyPeerCert(){}
 
     /**
      * @return mixed
@@ -130,17 +115,13 @@ class Client
     public function getpeername(){}
 
     /**
-     * @param $force[optional]
+     * @param $force
      * @return mixed
      */
     public function close($force = null){}
 
     /**
-     * @param $event_name[required]
-     * @param $callback[required]
      * @return mixed
      */
-    public function on($event_name, $callback){}
-
-
+    public function getSocket(){}
 }

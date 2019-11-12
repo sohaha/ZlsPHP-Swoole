@@ -27,7 +27,7 @@ class Http
      */
     public function onRequest($request, $response, $server, $zlsConfig, $config = []): string
     {
-        z::di()->bind('SwooleResponse', static function () use ($response) {
+        z::di()->bind(SWOOLE_RESPONSE, static function () use ($response) {
             return $response;
         });
         /** @noinspection PhpUndefinedFieldInspection */

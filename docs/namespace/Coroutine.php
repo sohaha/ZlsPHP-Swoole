@@ -1,48 +1,38 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole;
 
+/**
+ * @since 4.4.8
+ */
 class Coroutine
 {
 
 
     /**
-     * @param $func[required]
-     * @param $params[optional]
+     * @param callable $func
+     * @param ...$params
      * @return mixed
      */
-    public static function create($func, $params = null){}
+    public static function create(callable $func, ...$params){}
 
     /**
-     * @param $command[required]
-     * @return mixed
-     */
-    public static function exec($command){}
-
-    /**
-     * @param $domain_name[required]
-     * @param $family[optional]
-     * @param $timeout[optional]
-     * @return mixed
-     */
-    public static function gethostbyname($domain_name, $family = null, $timeout = null){}
-
-    /**
-     * @param $callback[required]
+     * @param mixed $callback
      * @return mixed
      */
     public static function defer($callback){}
 
     /**
-     * @param $options[required]
+     * @param array $options
      * @return mixed
      */
-    public static function set($options){}
+    public static function set(array $options){}
 
     /**
-     * @param $cid[required]
+     * @param int $cid
      * @return mixed
      */
-    public static function exists($cid){}
+    public static function exists(int $cid){}
 
     /**
      * @return mixed
@@ -55,10 +45,10 @@ class Coroutine
     public static function suspend(){}
 
     /**
-     * @param $cid[required]
+     * @param int $cid
      * @return mixed
      */
-    public static function resume($cid){}
+    public static function resume(int $cid){}
 
     /**
      * @return mixed
@@ -76,83 +66,27 @@ class Coroutine
     public static function getuid(){}
 
     /**
+     * @param int $cid
      * @return mixed
      */
-    public static function getPcid(){}
+    public static function getPcid(int $cid = null){}
 
     /**
-     * @param $cid[optional]
+     * @param int $cid
      * @return mixed
      */
-    public static function getContext($cid = null){}
+    public static function getContext(int $cid = null){}
 
     /**
-     * @param $seconds[required]
+     * @param int $cid
+     * @param int $options
+     * @param int $limit
      * @return mixed
      */
-    public static function sleep($seconds){}
+    public static function getBackTrace(int $cid = null, int $options = null, int $limit = null){}
 
     /**
-     * @param $handle[required]
-     * @param $length[optional]
-     * @return mixed
-     */
-    public static function fread($handle, $length = null){}
-
-    /**
-     * @param $handle[required]
-     * @return mixed
-     */
-    public static function fgets($handle){}
-
-    /**
-     * @param $handle[required]
-     * @param $string[required]
-     * @param $length[optional]
-     * @return mixed
-     */
-    public static function fwrite($handle, $string, $length = null){}
-
-    /**
-     * @param $filename[required]
-     * @return mixed
-     */
-    public static function readFile($filename){}
-
-    /**
-     * @param $filename[required]
-     * @param $data[required]
-     * @param $flags[optional]
-     * @return mixed
-     */
-    public static function writeFile($filename, $data, $flags = null){}
-
-    /**
-     * @param $hostname[required]
-     * @param $family[optional]
-     * @param $socktype[optional]
-     * @param $protocol[optional]
-     * @param $service[optional]
-     * @return mixed
-     */
-    public static function getaddrinfo($hostname, $family = null, $socktype = null, $protocol = null, $service = null){}
-
-    /**
-     * @param $path[required]
-     * @return mixed
-     */
-    public static function statvfs($path){}
-
-    /**
-     * @param $cid[optional]
-     * @param $options[optional]
-     * @param $limit[optional]
-     * @return mixed
-     */
-    public static function getBackTrace($cid = null, $options = null, $limit = null){}
-
-    /**
-     * @return mixed
+     * @return \Swoole\Coroutine\Iterator
      */
     public static function list(){}
 
@@ -161,5 +95,93 @@ class Coroutine
      */
     public static function listCoroutines(){}
 
+    /**
+     * @return mixed
+     */
+    public static function enableScheduler(){}
 
+    /**
+     * @return mixed
+     */
+    public static function disableScheduler(){}
+
+    /**
+     * @param string $domain_name
+     * @param $family
+     * @param float $timeout
+     * @return mixed
+     */
+    public static function gethostbyname(string $domain_name, $family = null, float $timeout = null){}
+
+    /**
+     * @param string $domain_name
+     * @param float $timeout
+     * @return mixed
+     */
+    public static function dnsLookup(string $domain_name, float $timeout = null){}
+
+    /**
+     * @param string $command
+     * @param $get_error_stream
+     * @return mixed
+     */
+    public static function exec(string $command, $get_error_stream = null){}
+
+    /**
+     * @param $seconds
+     * @return mixed
+     */
+    public static function sleep($seconds){}
+
+    /**
+     * @param $handle
+     * @param int $length
+     * @return mixed
+     */
+    public static function fread($handle, int $length = null){}
+
+    /**
+     * @param $handle
+     * @return mixed
+     */
+    public static function fgets($handle){}
+
+    /**
+     * @param $handle
+     * @param string $string
+     * @param int $length
+     * @return mixed
+     */
+    public static function fwrite($handle, string $string, int $length = null){}
+
+    /**
+     * @param string $filename
+     * @return mixed
+     */
+    public static function readFile(string $filename){}
+
+    /**
+     * @param string $filename
+     * @param mixed $data
+     * @param $flags
+     * @return mixed
+     */
+    public static function writeFile(string $filename, $data, $flags = null){}
+
+    /**
+     * @param string $hostname
+     * @param $family
+     * @param $socktype
+     * @param $protocol
+     * @param $service
+     * @param float $timeout
+     * @return mixed
+     */
+    public static function getaddrinfo(string $hostname, $family = null, $socktype = null, $protocol = null, $service = null, float $timeout = null){}
+
+    /**
+     * @param string $path
+     * @return mixed
+     */
+    public static function statvfs(string $path){}
 }

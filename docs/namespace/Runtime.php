@@ -1,6 +1,10 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole;
 
+/**
+ * @since 4.4.8
+ */
 class Runtime
 {
 
@@ -11,11 +15,9 @@ class Runtime
     public static function enableStrictMode(){}
 
     /**
-     * @param $enable[optional]
-     * @param $flags[optional]
+     * @param $enable
+     * @param $flags
      * @return mixed
      */
     public static function enableCoroutine($enable = null, $flags = null){}
-
-
 }

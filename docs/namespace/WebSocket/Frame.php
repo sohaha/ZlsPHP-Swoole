@@ -1,9 +1,14 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\WebSocket;
 
+/**
+ * @since 4.4.8
+ */
 class Frame
 {
 
+    // property of the class Frame
     public $fd;
     public $data;
     public $opcode;
@@ -15,19 +20,17 @@ class Frame
     public function __toString(){}
 
     /**
-     * @param $data[required]
-     * @param $opcode[optional]
-     * @param $finish[optional]
-     * @param $mask[optional]
+     * @param mixed $data
+     * @param int $opcode
+     * @param bool $finish
+     * @param $mask
      * @return mixed
      */
-    public static function pack($data, $opcode = null, $finish = null, $mask = null){}
+    public static function pack($data, int $opcode = null, bool $finish = null, $mask = null){}
 
     /**
-     * @param $data[required]
+     * @param mixed $data
      * @return mixed
      */
     public static function unpack($data){}
-
-
 }

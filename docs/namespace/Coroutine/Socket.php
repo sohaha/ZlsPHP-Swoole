@@ -1,96 +1,142 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Coroutine;
 
+/**
+ * @since 4.4.8
+ */
 class Socket
 {
 
+    // property of the class Socket
     public $fd;
     public $errCode;
     public $errMsg;
 
     /**
-     * @param $domain[required]
-     * @param $type[required]
-     * @param $protocol[optional]
+     * @param string $domain
+     * @param $type
+     * @param $protocol
      * @return mixed
      */
-    public function __construct($domain, $type, $protocol = null){}
+    public function __construct(string $domain, $type, $protocol = null){}
 
     /**
-     * @param $address[required]
-     * @param $port[optional]
+     * @param string $address
+     * @param int $port
      * @return mixed
      */
-    public function bind($address, $port = null){}
+    public function bind(string $address, int $port = null){}
 
     /**
-     * @param $backlog[optional]
+     * @param int $backlog
      * @return mixed
      */
-    public function listen($backlog = null){}
+    public function listen(int $backlog = null){}
 
     /**
-     * @param $timeout[optional]
+     * @param float $timeout
      * @return mixed
      */
-    public function accept($timeout = null){}
+    public function accept(float $timeout = null){}
 
     /**
-     * @param $host[required]
-     * @param $port[optional]
-     * @param $timeout[optional]
+     * @param string $host
+     * @param int $port
+     * @param float $timeout
      * @return mixed
      */
-    public function connect($host, $port = null, $timeout = null){}
+    public function connect(string $host, int $port = null, float $timeout = null){}
 
     /**
-     * @param $length[optional]
-     * @param $timeout[optional]
+     * @param int $length
+     * @param float $timeout
      * @return mixed
      */
-    public function recv($length = null, $timeout = null){}
+    public function recv(int $length = null, float $timeout = null){}
 
     /**
-     * @param $data[required]
-     * @param $timeout[optional]
+     * @param float $timeout
      * @return mixed
      */
-    public function send($data, $timeout = null){}
+    public function recvPacket(float $timeout = null){}
 
     /**
-     * @param $length[optional]
-     * @param $timeout[optional]
+     * @param mixed $data
+     * @param float $timeout
      * @return mixed
      */
-    public function recvAll($length = null, $timeout = null){}
+    public function send($data, float $timeout = null){}
 
     /**
-     * @param $data[required]
-     * @param $timeout[optional]
+     * @param string $filename
+     * @param int $offset
+     * @param int $length
      * @return mixed
      */
-    public function sendAll($data, $timeout = null){}
+    public function sendFile(string $filename, int $offset = null, int $length = null){}
 
     /**
-     * @param $peername[required]
-     * @param $timeout[optional]
+     * @param int $length
+     * @param float $timeout
      * @return mixed
      */
-    public function recvfrom(&$peername, $timeout = null){}
+    public function recvAll(int $length = null, float $timeout = null){}
 
     /**
-     * @param $addr[required]
-     * @param $port[required]
-     * @param $data[required]
+     * @param mixed $data
+     * @param float $timeout
      * @return mixed
      */
-    public function sendto($addr, $port, $data){}
+    public function sendAll($data, float $timeout = null){}
 
     /**
-     * @param $how[required]
+     * @param $peername
+     * @param float $timeout
      * @return mixed
      */
-    public function shutdown($how){}
+    public function recvfrom($peername, float $timeout = null){}
+
+    /**
+     * @param $addr
+     * @param int $port
+     * @param mixed $data
+     * @return mixed
+     */
+    public function sendto($addr, int $port, $data){}
+
+    /**
+     * @param $level
+     * @param $opt_name
+     * @return mixed
+     */
+    public function getOption($level, $opt_name){}
+
+    /**
+     * @param array $settings
+     * @return mixed
+     */
+    public function setProtocol(array $settings){}
+
+    /**
+     * @param $level
+     * @param $opt_name
+     * @param $opt_value
+     * @return mixed
+     */
+    public function setOption($level, $opt_name, $opt_value){}
+
+    /**
+     * @param $how
+     * @return mixed
+     */
+    public function shutdown($how = null){}
+
+    /**
+     * @param $event
+     * @return mixed
+     */
+    public function cancel($event = null){}
 
     /**
      * @return mixed
@@ -106,6 +152,4 @@ class Socket
      * @return mixed
      */
     public function getsockname(){}
-
-
 }

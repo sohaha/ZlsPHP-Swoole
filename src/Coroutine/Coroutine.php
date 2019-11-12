@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Zls\Swoole\Coroutine;
 
+use Swoole\Coroutine as SwooleCo;
 use Z;
 use Zls\Swoole\Utils;
 
@@ -23,21 +24,13 @@ abstract class Coroutine
 
     abstract public function go(\Closure $func);
 
-    public function sleep($time): void
-    {
-        sleep($time);
-    }
+    abstract public function sleep($time): void;
 
-    public static function wait(Coroutine $task)
-    {
-        return Z::arrayGet($task->data(), 'task.data');
-    }
+    abstract public static function wait(Coroutine $task);
 
-    public static function sync(\Closure $func)
-    {
-        $task = new static(-1, 1);
-        $task->run("task", $func);
+    abstract public static function sync(\Closure $func);
 
-        return $task;
-    }
+    abstract public static function id(): int;
+
+    abstract public static function inCoroutine(): bool;
 }

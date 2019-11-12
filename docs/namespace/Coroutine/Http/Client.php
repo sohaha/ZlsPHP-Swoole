@@ -1,9 +1,14 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Coroutine\Http;
 
+/**
+ * @since 4.4.8
+ */
 class Client
 {
 
+    // property of the class Client
     public $errCode;
     public $errMsg;
     public $connected;
@@ -24,23 +29,18 @@ class Client
     public $body;
 
     /**
-     * @param $host[required]
-     * @param $port[optional]
-     * @param $ssl[optional]
+     * @param string $host
+     * @param int $port
+     * @param $ssl
      * @return mixed
      */
-    public function __construct($host, $port = null, $ssl = null){}
+    public function __construct(string $host, int $port = null, $ssl = null){}
 
     /**
+     * @param array $settings
      * @return mixed
      */
-    public function __destruct(){}
-
-    /**
-     * @param $settings[required]
-     * @return mixed
-     */
-    public function set($settings){}
+    public function set(array $settings){}
 
     /**
      * @return mixed
@@ -48,106 +48,136 @@ class Client
     public function getDefer(){}
 
     /**
-     * @param $defer[optional]
+     * @param $defer
      * @return mixed
      */
     public function setDefer($defer = null){}
 
     /**
-     * @param $method[required]
+     * @param string $method
      * @return mixed
      */
-    public function setMethod($method){}
+    public function setMethod(string $method){}
 
     /**
-     * @param $headers[required]
+     * @param array $headers
      * @return mixed
      */
-    public function setHeaders($headers){}
+    public function setHeaders(array $headers){}
 
     /**
-     * @param $cookies[required]
+     * @param string $username
+     * @param string $password
      * @return mixed
      */
-    public function setCookies($cookies){}
+    public function setBasicAuth(string $username, string $password){}
 
     /**
-     * @param $data[required]
+     * @param array $cookies
+     * @return mixed
+     */
+    public function setCookies(array $cookies){}
+
+    /**
+     * @param mixed $data
      * @return mixed
      */
     public function setData($data){}
 
     /**
-     * @param $path[required]
+     * @param string $path
+     * @param string $name
+     * @param $type
+     * @param string $filename
+     * @param int $offset
+     * @param int $length
      * @return mixed
      */
-    public function execute($path){}
+    public function addFile(string $path, string $name, $type = null, string $filename = null, int $offset = null, int $length = null){}
 
     /**
-     * @param $path[required]
+     * @param string $path
+     * @param string $name
+     * @param $type
+     * @param string $filename
      * @return mixed
      */
-    public function get($path){}
+    public function addData(string $path, string $name, $type = null, string $filename = null){}
 
     /**
-     * @param $path[required]
-     * @param $data[required]
+     * @param string $path
      * @return mixed
      */
-    public function post($path, $data){}
+    public function execute(string $path){}
 
     /**
-     * @param $path[required]
-     * @param $file[required]
-     * @param $offset[optional]
+     * @param string $path
      * @return mixed
      */
-    public function download($path, $file, $offset = null){}
+    public function get(string $path){}
 
     /**
-     * @param $path[required]
+     * @param string $path
+     * @param mixed $data
      * @return mixed
      */
-    public function upgrade($path){}
+    public function post(string $path, $data){}
 
     /**
-     * @param $path[required]
-     * @param $name[required]
-     * @param $type[optional]
-     * @param $filename[optional]
-     * @param $offset[optional]
-     * @param $length[optional]
+     * @param string $path
+     * @param $file
+     * @param int $offset
      * @return mixed
      */
-    public function addFile($path, $name, $type = null, $filename = null, $offset = null, $length = null){}
+    public function download(string $path, $file, int $offset = null){}
 
     /**
-     * @param $path[required]
-     * @param $name[required]
-     * @param $type[optional]
-     * @param $filename[optional]
      * @return mixed
      */
-    public function addData($path, $name, $type = null, $filename = null){}
+    public function getBody(){}
 
     /**
-     * @param $timeout[optional]
      * @return mixed
      */
-    public function recv($timeout = null){}
+    public function getHeaders(){}
 
     /**
-     * @param $data[required]
-     * @param $opcode[optional]
-     * @param $finish[optional]
      * @return mixed
      */
-    public function push($data, $opcode = null, $finish = null){}
+    public function getCookies(){}
+
+    /**
+     * @return mixed
+     */
+    public function getStatusCode(){}
+
+    /**
+     * @return mixed
+     */
+    public function getHeaderOut(){}
+
+    /**
+     * @param string $path
+     * @return mixed
+     */
+    public function upgrade(string $path){}
+
+    /**
+     * @param mixed $data
+     * @param int $opcode
+     * @param bool $finish
+     * @return mixed
+     */
+    public function push($data, int $opcode = null, bool $finish = null){}
+
+    /**
+     * @param float $timeout
+     * @return mixed
+     */
+    public function recv(float $timeout = null){}
 
     /**
      * @return mixed
      */
     public function close(){}
-
-
 }

@@ -1,14 +1,20 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole;
 
+/**
+ * @since 4.4.8
+ */
 class Process
 {
-    const IPC_NOWAIT = 256;
-    const PIPE_MASTER = 1;
-    const PIPE_WORKER = 2;
-    const PIPE_READ = 3;
-    const PIPE_WRITE = 4;
+    // constants of the class Process
+    public const IPC_NOWAIT = 256;
+    public const PIPE_MASTER = 1;
+    public const PIPE_WORKER = 2;
+    public const PIPE_READ = 3;
+    public const PIPE_WRITE = 4;
 
+    // property of the class Process
     public $pipe;
     public $callback;
     public $msgQueueId;
@@ -17,77 +23,80 @@ class Process
     public $id;
 
     /**
-     * @param $callback[required]
-     * @param $redirect_stdin_and_stdout[optional]
-     * @param $pipe_type[optional]
+     * @param callable $callback
+     * @param bool $redirect_stdin_and_stdout
+     * @param int $pipe_type
+     * @param bool $enable_coroutine
      * @return mixed
      */
-    public function __construct($callback, $redirect_stdin_and_stdout = null, $pipe_type = null){}
+    public function __construct(callable $callback, bool $redirect_stdin_and_stdout = null, int $pipe_type = null, bool $enable_coroutine = null){}
 
     /**
+     * @param bool $blocking
      * @return mixed
      */
-    public function __destruct(){}
+    public static function wait(bool $blocking = null){}
 
     /**
-     * @param $blocking[optional]
+     * @param int $signal_no
+     * @param mixed $callback
      * @return mixed
      */
-    public static function wait($blocking = null){}
+    public static function signal(int $signal_no, $callback){}
 
     /**
-     * @param $signal_no[required]
-     * @param $callback[required]
-     * @return mixed
-     */
-    public static function signal($signal_no, $callback){}
-
-    /**
-     * @param $usec[required]
-     * @param $type[optional]
+     * @param $usec
+     * @param $type
      * @return mixed
      */
     public static function alarm($usec, $type = null){}
 
     /**
-     * @param $pid[required]
-     * @param $signal_no[optional]
+     * @param int $pid
+     * @param int $signal_no
      * @return mixed
      */
-    public static function kill($pid, $signal_no = null){}
+    public static function kill(int $pid, int $signal_no = null){}
 
     /**
-     * @param $nochdir[optional]
-     * @param $noclose[optional]
+     * @param $nochdir
+     * @param $noclose
+     * @param $pipes
      * @return mixed
      */
-    public static function daemon($nochdir = null, $noclose = null){}
+    public static function daemon($nochdir = null, $noclose = null, $pipes = null){}
 
     /**
-     * @param $cpu_settings[required]
+     * @param array $cpu_settings
      * @return mixed
      */
-    public static function setaffinity($cpu_settings){}
+    public static function setaffinity(array $cpu_settings){}
 
     /**
-     * @param $seconds[required]
+     * @param array $settings
+     * @return mixed
+     */
+    public function set(array $settings){}
+
+    /**
+     * @param $seconds
      * @return mixed
      */
     public function setTimeout($seconds){}
 
     /**
-     * @param $blocking[required]
+     * @param bool $blocking
      * @return mixed
      */
-    public function setBlocking($blocking){}
+    public function setBlocking(bool $blocking){}
 
     /**
-     * @param $key[optional]
-     * @param $mode[optional]
-     * @param $capacity[optional]
+     * @param string $key
+     * @param $mode
+     * @param $capacity
      * @return mixed
      */
-    public function useQueue($key = null, $mode = null, $capacity = null){}
+    public function useQueue(string $key = null, $mode = null, $capacity = null){}
 
     /**
      * @return mixed
@@ -105,7 +114,7 @@ class Process
     public function start(){}
 
     /**
-     * @param $data[required]
+     * @param mixed $data
      * @return mixed
      */
     public function write($data){}
@@ -116,46 +125,44 @@ class Process
     public function close(){}
 
     /**
-     * @param $size[optional]
+     * @param int $size
      * @return mixed
      */
-    public function read($size = null){}
+    public function read(int $size = null){}
 
     /**
-     * @param $data[required]
+     * @param mixed $data
      * @return mixed
      */
     public function push($data){}
 
     /**
-     * @param $size[optional]
+     * @param int $size
      * @return mixed
      */
-    public function pop($size = null){}
+    public function pop(int $size = null){}
 
     /**
-     * @param $exit_code[optional]
+     * @param int $exit_code
      * @return mixed
      */
-    public function exit($exit_code = null){}
+    public function exit(int $exit_code = null){}
 
     /**
-     * @param $exec_file[required]
-     * @param $args[required]
+     * @param $exec_file
+     * @param $args
      * @return mixed
      */
     public function exec($exec_file, $args){}
 
     /**
-     * @return mixed
+     * @return \Swoole\Coroutine\Socket
      */
     public function exportSocket(){}
 
     /**
-     * @param $process_name[required]
+     * @param string $process_name
      * @return mixed
      */
-    public function name($process_name){}
-
-
+    public function name(string $process_name){}
 }

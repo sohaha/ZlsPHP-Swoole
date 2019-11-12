@@ -1,40 +1,53 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Coroutine\MySQL;
 
+/**
+ * @since 4.4.8
+ */
 class Statement
 {
 
+    // property of the class Statement
+    public $id;
     public $affected_rows;
     public $insert_id;
     public $error;
     public $errno;
 
     /**
-     * @param $params[optional]
-     * @param $timeout[optional]
+     * @param array $params
+     * @param float $timeout
      * @return mixed
      */
-    public function execute($params = null, $timeout = null){}
+    public function execute(array $params = null, float $timeout = null){}
+
+    /**
+     * @param float $timeout
+     * @return mixed
+     */
+    public function fetch(float $timeout = null){}
+
+    /**
+     * @param float $timeout
+     * @return mixed
+     */
+    public function fetchAll(float $timeout = null){}
+
+    /**
+     * @param float $timeout
+     * @return mixed
+     */
+    public function nextResult(float $timeout = null){}
+
+    /**
+     * @param float $timeout
+     * @return mixed
+     */
+    public function recv(float $timeout = null){}
 
     /**
      * @return mixed
      */
-    public function fetch(){}
-
-    /**
-     * @return mixed
-     */
-    public function fetchAll(){}
-
-    /**
-     * @return mixed
-     */
-    public function nextResult(){}
-
-    /**
-     * @return mixed
-     */
-    public function __destruct(){}
-
-
+    public function close(){}
 }

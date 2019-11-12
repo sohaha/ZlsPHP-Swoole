@@ -1,9 +1,18 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Connection;
 
-class Iterator
+/**
+ * @since 4.4.8
+ */
+class Iterator implements \Iterator, \ArrayAccess, \Countable
 {
 
+
+    /**
+     * @return mixed
+     */
+    public function __construct(){}
 
     /**
      * @return mixed
@@ -36,34 +45,27 @@ class Iterator
     public function count(){}
 
     /**
+     * @param int $fd
      * @return mixed
      */
-    public function __destruct(){}
+    public function offsetExists(int $fd){}
 
     /**
-     * @param $fd[required]
+     * @param int $fd
      * @return mixed
      */
-    public function offsetExists($fd){}
+    public function offsetGet(int $fd){}
 
     /**
-     * @param $fd[required]
+     * @param int $fd
+     * @param $value
      * @return mixed
      */
-    public function offsetGet($fd){}
+    public function offsetSet(int $fd, $value){}
 
     /**
-     * @param $fd[required]
-     * @param $value[required]
+     * @param int $fd
      * @return mixed
      */
-    public function offsetSet($fd, $value){}
-
-    /**
-     * @param $fd[required]
-     * @return mixed
-     */
-    public function offsetUnset($fd){}
-
-
+    public function offsetUnset(int $fd){}
 }

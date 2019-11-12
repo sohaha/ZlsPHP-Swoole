@@ -1,9 +1,14 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Http2;
 
+/**
+ * @since 4.4.8
+ */
 class Response
 {
 
+    // property of the class Response
     public $streamId;
     public $errCode;
     public $statusCode;

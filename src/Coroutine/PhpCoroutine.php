@@ -37,4 +37,32 @@ class PhpCoroutine extends Coroutine
     {
         $func();
     }
+
+    public function sleep($time): void
+    {
+        sleep($time);
+    }
+
+    public static function wait(Coroutine $task)
+    {
+        return Z::arrayGet($task->data(), 'task.data');
+    }
+
+    public static function sync(\Closure $func)
+    {
+        $task = new static(-1, 1);
+        $task->run("task", $func);
+
+        return $task;
+    }
+
+    public static function id(): int
+    {
+        return 0;//getmypid();
+    }
+
+    public static function inCoroutine(): bool
+    {
+        return false;
+    }
 }

@@ -1,38 +1,43 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Coroutine;
 
+/**
+ * @since 4.4.8
+ */
 class Channel
 {
 
+    // property of the class Channel
     public $capacity;
     public $errCode;
 
     /**
-     * @param $size[optional]
+     * @param int $size
      * @return mixed
      */
-    public function __construct($size = null){}
+    public function __construct(int $size = null){}
 
     /**
-     * @param $data[required]
-     * @param $timeout[optional]
+     * @param mixed $data
+     * @param float $timeout
      * @return mixed
      */
-    public function push($data, $timeout = null){}
+    public function push($data, float $timeout = null){}
 
     /**
-     * @param $timeout[optional]
+     * @param float $timeout
      * @return mixed
      */
-    public function pop($timeout = null){}
+    public function pop(float $timeout = null){}
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function isEmpty(){}
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function isFull(){}
 
@@ -50,6 +55,4 @@ class Channel
      * @return mixed
      */
     public function length(){}
-
-
 }

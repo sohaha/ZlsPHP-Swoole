@@ -1,87 +1,103 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Coroutine;
 
+/**
+ * @since 4.4.8
+ */
 class Client
 {
-    const MSG_OOB = 1;
-    const MSG_PEEK = 2;
-    const MSG_DONTWAIT = 64;
-    const MSG_WAITALL = 256;
+    // constants of the class Client
+    public const MSG_OOB = 1;
+    public const MSG_PEEK = 2;
+    public const MSG_DONTWAIT = 64;
+    public const MSG_WAITALL = 256;
 
+    // property of the class Client
     public $errCode;
     public $errMsg;
-    public $sock;
+    public $fd;
     public $type;
     public $setting;
     public $connected;
 
     /**
-     * @param $type[required]
+     * @param $type
      * @return mixed
      */
     public function __construct($type){}
 
     /**
+     * @param array $settings
      * @return mixed
      */
-    public function __destruct(){}
+    public function set(array $settings){}
 
     /**
-     * @param $settings[required]
+     * @param string $host
+     * @param int $port
+     * @param float $timeout
+     * @param $sock_flag
      * @return mixed
      */
-    public function set($settings){}
+    public function connect(string $host, int $port = null, float $timeout = null, $sock_flag = null){}
 
     /**
-     * @param $host[required]
-     * @param $port[optional]
-     * @param $timeout[optional]
-     * @param $sock_flag[optional]
+     * @param float $timeout
      * @return mixed
      */
-    public function connect($host, $port = null, $timeout = null, $sock_flag = null){}
+    public function recv(float $timeout = null){}
 
     /**
-     * @param $timeout[optional]
+     * @param int $length
      * @return mixed
      */
-    public function recv($timeout = null){}
+    public function peek(int $length = null){}
 
     /**
-     * @param $length[optional]
-     * @return mixed
-     */
-    public function peek($length = null){}
-
-    /**
-     * @param $data[required]
+     * @param mixed $data
      * @return mixed
      */
     public function send($data){}
 
     /**
-     * @param $filename[required]
-     * @param $offset[optional]
-     * @param $length[optional]
+     * @param string $filename
+     * @param int $offset
+     * @param int $length
      * @return mixed
      */
-    public function sendfile($filename, $offset = null, $length = null){}
+    public function sendfile(string $filename, int $offset = null, int $length = null){}
 
     /**
-     * @param $address[required]
-     * @param $port[required]
-     * @param $data[required]
+     * @param string $address
+     * @param int $port
+     * @param mixed $data
      * @return mixed
      */
-    public function sendto($address, $port, $data){}
+    public function sendto(string $address, int $port, $data){}
 
     /**
-     * @param $length[required]
-     * @param $address[required]
-     * @param $port[optional]
+     * @param int $length
+     * @param string $address
+     * @param int $port
      * @return mixed
      */
-    public function recvfrom($length, &$address, &$port = null){}
+    public function recvfrom(int $length, string $address, int $port = null){}
+
+    /**
+     * @return mixed
+     */
+    public function enableSSL(){}
+
+    /**
+     * @return mixed
+     */
+    public function getPeerCert(){}
+
+    /**
+     * @return mixed
+     */
+    public function verifyPeerCert(){}
 
     /**
      * @return mixed
@@ -103,5 +119,8 @@ class Client
      */
     public function close(){}
 
-
+    /**
+     * @return mixed
+     */
+    public function exportSocket(){}
 }

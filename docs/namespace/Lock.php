@@ -1,27 +1,28 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole;
 
+/**
+ * @since 4.4.8
+ */
 class Lock
 {
-    const FILELOCK = 2;
-    const MUTEX = 3;
-    const SEM = 4;
-    const RWLOCK = 1;
-    const SPINLOCK = 5;
+    // constants of the class Lock
+    public const FILELOCK = 2;
+    public const MUTEX = 3;
+    public const SEM = 4;
+    public const RWLOCK = 1;
+    public const SPINLOCK = 5;
 
+    // property of the class Lock
     public $errCode;
 
     /**
-     * @param $type[optional]
-     * @param $filename[optional]
+     * @param $type
+     * @param string $filename
      * @return mixed
      */
-    public function __construct($type = null, $filename = null){}
-
-    /**
-     * @return mixed
-     */
-    public function __destruct(){}
+    public function __construct($type = null, string $filename = null){}
 
     /**
      * @return mixed
@@ -29,10 +30,10 @@ class Lock
     public function lock(){}
 
     /**
-     * @param $timeout[optional]
+     * @param float $timeout
      * @return mixed
      */
-    public function lockwait($timeout = null){}
+    public function lockwait(float $timeout = null){}
 
     /**
      * @return mixed
@@ -58,6 +59,4 @@ class Lock
      * @return mixed
      */
     public function destroy(){}
-
-
 }

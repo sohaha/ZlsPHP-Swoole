@@ -1,45 +1,55 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Process;
 
+/**
+ * @since 4.4.8
+ */
 class Pool
 {
 
+    // property of the class Pool
+    public $master_pid;
+    public $workers;
 
     /**
-     * @param $worker_num[required]
-     * @param $ipc_type[optional]
-     * @param $msgqueue_key[optional]
+     * @param int $worker_num
+     * @param int $ipc_type
+     * @param int $msgqueue_key
+     * @param bool $enable_coroutine
      * @return mixed
      */
-    public function __construct($worker_num, $ipc_type = null, $msgqueue_key = null){}
+    public function __construct(int $worker_num, int $ipc_type = null, int $msgqueue_key = null, bool $enable_coroutine = null){}
 
     /**
+     * @param array $settings
      * @return mixed
      */
-    public function __destruct(){}
+    public function set(array $settings){}
 
     /**
-     * @param $event_name[required]
-     * @param $callback[required]
+     * @param string $event_name
+     * @param callable $callback
      * @return mixed
      */
-    public function on($event_name, $callback){}
+    public function on(string $event_name, callable $callback){}
 
     /**
+     * @param int $worker_id
      * @return mixed
      */
-    public function getProcess(){}
+    public function getProcess(int $worker_id = null){}
 
     /**
-     * @param $host[required]
-     * @param $port[optional]
-     * @param $backlog[optional]
+     * @param string $host
+     * @param int $port
+     * @param int $backlog
      * @return mixed
      */
-    public function listen($host, $port = null, $backlog = null){}
+    public function listen(string $host, int $port = null, int $backlog = null){}
 
     /**
-     * @param $data[required]
+     * @param mixed $data
      * @return mixed
      */
     public function write($data){}
@@ -49,5 +59,8 @@ class Pool
      */
     public function start(){}
 
-
+    /**
+     * @return mixed
+     */
+    public function shutdown(){}
 }

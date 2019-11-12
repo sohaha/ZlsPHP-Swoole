@@ -3,6 +3,7 @@ declare (strict_types=1);
 
 namespace Zls\Swoole;
 
+use Swoole\Server as ServerAlias;
 use Z;
 use Zls\Session\File;
 
@@ -132,6 +133,7 @@ class Event
 
     /**
      * 正常结束
+     *
      * @param \swoole_server $server
      */
     public function onShutdown($server): void
@@ -140,11 +142,14 @@ class Event
 
     /**
      * 启动主进程的主线程回调
-     * @param \swoole_server $server
+     *
+     * @param ServerAlias $server
+     *
      * @desc cli_set_process_title(z::config('swoole.pname'));
      */
     public function onStart($server): void
     {
+        $this->main->masterPid = (int)$server->master_pid;
     }
 
     public function onWorkerExit(): void

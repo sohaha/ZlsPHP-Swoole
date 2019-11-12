@@ -1,14 +1,18 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Http;
 
+/**
+ * @since 4.4.8
+ */
 class Request
 {
 
+    // property of the class Request
     public $fd;
     public $streamId;
     public $header;
     public $server;
-    public $request;
     public $cookie;
     public $get;
     public $files;
@@ -24,11 +28,4 @@ class Request
      * @return mixed
      */
     public function getData(){}
-
-    /**
-     * @return mixed
-     */
-    public function __destruct(){}
-
-
 }

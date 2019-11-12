@@ -1,9 +1,15 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Http;
 
+/**
+ * @since 4.4.8
+ */
 class Server extends \Swoole\Server
 {
 
+    // property of the class Server
+    public $setting;
     public $connections;
     public $host;
     public $port;
@@ -15,58 +21,50 @@ class Server extends \Swoole\Server
     public $worker_id;
     public $taskworker;
     public $worker_pid;
-    public $onRequest;
-    public $onHandshake;
-    public $setting;
 
     /**
-     * @param $host[required]
-     * @param $port[optional]
-     * @param $mode[optional]
-     * @param $sock_type[optional]
+     * @param string $host
+     * @param int $port
+     * @param $mode
+     * @param $sock_type
      * @return mixed
      */
-    public function __construct($host, $port = null, $mode = null, $sock_type = null){}
+    public function __construct(string $host, int $port = null, $mode = null, $sock_type = null){}
 
     /**
+     * @param string $host
+     * @param int $port
+     * @param $sock_type
      * @return mixed
      */
-    public function __destruct(){}
+    public function listen(string $host, int $port, $sock_type){}
 
     /**
-     * @param $host[required]
-     * @param $port[required]
-     * @param $sock_type[required]
+     * @param string $host
+     * @param int $port
+     * @param $sock_type
      * @return mixed
      */
-    public function listen($host, $port, $sock_type){}
+    public function addlistener(string $host, int $port, $sock_type){}
 
     /**
-     * @param $host[required]
-     * @param $port[required]
-     * @param $sock_type[required]
+     * @param string $event_name
+     * @param callable $callback
      * @return mixed
      */
-    public function addlistener($host, $port, $sock_type){}
+    public function on(string $event_name, callable $callback){}
 
     /**
-     * @param $event_name[required]
-     * @param $callback[required]
+     * @param string $event_name
      * @return mixed
      */
-    public function on($event_name, $callback){}
+    public function getCallback(string $event_name){}
 
     /**
-     * @param $event_name[required]
+     * @param array $settings
      * @return mixed
      */
-    public function getCallback($event_name){}
-
-    /**
-     * @param $settings[required]
-     * @return mixed
-     */
-    public function set($settings){}
+    public function set(array $settings){}
 
     /**
      * @return mixed
@@ -74,114 +72,115 @@ class Server extends \Swoole\Server
     public function start(){}
 
     /**
-     * @param $fd[required]
-     * @param $send_data[required]
-     * @param $server_socket[optional]
-     * @return mixed
+     * Send data to the client
+     * @param int $fd
+     * @param string $send_data
+     * @param int $server_socket
+     * @return bool If success return True, fail return False
      */
-    public function send($fd, $send_data, $server_socket = null){}
+    public function send(int $fd, string $send_data, int $server_socket = null){}
 
     /**
-     * @param $ip[required]
-     * @param $port[required]
-     * @param $send_data[required]
-     * @param $server_socket[optional]
+     * @param string $ip
+     * @param int $port
+     * @param string $send_data
+     * @param int $server_socket
      * @return mixed
      */
-    public function sendto($ip, $port, $send_data, $server_socket = null){}
+    public function sendto(string $ip, int $port, string $send_data, int $server_socket = null){}
 
     /**
-     * @param $conn_fd[required]
-     * @param $send_data[required]
+     * @param int $conn_fd
+     * @param string $send_data
      * @return mixed
      */
-    public function sendwait($conn_fd, $send_data){}
+    public function sendwait(int $conn_fd, string $send_data){}
 
     /**
-     * @param $fd[required]
+     * @param int $fd
      * @return mixed
      */
-    public function exists($fd){}
+    public function exists(int $fd){}
 
     /**
-     * @param $fd[required]
+     * @param int $fd
      * @return mixed
      */
-    public function exist($fd){}
+    public function exist(int $fd){}
 
     /**
-     * @param $fd[required]
-     * @param $is_protected[optional]
+     * @param int $fd
+     * @param bool $is_protected
      * @return mixed
      */
-    public function protect($fd, $is_protected = null){}
+    public function protect(int $fd, bool $is_protected = null){}
 
     /**
-     * @param $conn_fd[required]
-     * @param $filename[required]
-     * @param $offset[optional]
-     * @param $length[optional]
+     * @param int $conn_fd
+     * @param string $filename
+     * @param int $offset
+     * @param int $length
      * @return mixed
      */
-    public function sendfile($conn_fd, $filename, $offset = null, $length = null){}
+    public function sendfile(int $conn_fd, string $filename, int $offset = null, int $length = null){}
 
     /**
-     * @param $fd[required]
-     * @param $reset[optional]
+     * @param int $fd
+     * @param bool $reset
      * @return mixed
      */
-    public function close($fd, $reset = null){}
+    public function close(int $fd, bool $reset = null){}
 
     /**
-     * @param $fd[required]
+     * @param int $fd
      * @return mixed
      */
-    public function confirm($fd){}
+    public function confirm(int $fd){}
 
     /**
-     * @param $fd[required]
+     * @param int $fd
      * @return mixed
      */
-    public function pause($fd){}
+    public function pause(int $fd){}
 
     /**
-     * @param $fd[required]
+     * @param int $fd
      * @return mixed
      */
-    public function resume($fd){}
+    public function resume(int $fd){}
 
     /**
-     * @param $data[required]
-     * @param $worker_id[optional]
-     * @param $finish_callback[optional]
+     * @param mixed $data
+     * @param int $worker_id
+     * @param callable $finish_callback
      * @return mixed
      */
-    public function task($data, $worker_id = null, $finish_callback = null){}
+    public function task($data, int $worker_id = null, callable $finish_callback = null){}
 
     /**
-     * @param $data[required]
-     * @param $timeout[optional]
-     * @param $worker_id[optional]
+     * @param mixed $data
+     * @param float $timeout
+     * @param int $worker_id
      * @return mixed
      */
-    public function taskwait($data, $timeout = null, $worker_id = null){}
+    public function taskwait($data, float $timeout = null, int $worker_id = null){}
 
     /**
-     * @param $tasks[required]
-     * @param $timeout[optional]
+     * @param array $tasks
+     * @param float $timeout
      * @return mixed
      */
-    public function taskWaitMulti($tasks, $timeout = null){}
+    public function taskWaitMulti(array $tasks, float $timeout = null){}
 
     /**
-     * @param $tasks[required]
-     * @param $timeout[optional]
+     * @param array $tasks
+     * @param float $timeout
      * @return mixed
      */
-    public function taskCo($tasks, $timeout = null){}
+    public function taskCo(array $tasks, float $timeout = null){}
 
     /**
-     * @param $data[required]
+     * @param mixed $data
      * @return mixed
      */
     public function finish($data){}
@@ -197,10 +196,10 @@ class Server extends \Swoole\Server
     public function shutdown(){}
 
     /**
-     * @param $worker_id[optional]
+     * @param int $worker_id
      * @return mixed
      */
-    public function stop($worker_id = null){}
+    public function stop(int $worker_id = null){}
 
     /**
      * @return mixed
@@ -208,78 +207,51 @@ class Server extends \Swoole\Server
     public function getLastError(){}
 
     /**
-     * @param $reactor_id[required]
+     * @param int $reactor_id
      * @return mixed
      */
-    public function heartbeat($reactor_id){}
+    public function heartbeat(int $reactor_id){}
 
     /**
-     * @param $fd[required]
-     * @param $reactor_id[optional]
+     * @param int $fd
+     * @param int $reactor_id
      * @return mixed
      */
-    public function connection_info($fd, $reactor_id = null){}
+    public function getClientInfo(int $fd, int $reactor_id = null){}
 
     /**
-     * @param $start_fd[required]
-     * @param $find_count[optional]
+     * @param int $start_fd
+     * @param int $find_count
      * @return mixed
      */
-    public function connection_list($start_fd, $find_count = null){}
+    public function getClientList(int $start_fd, int $find_count = null){}
 
     /**
-     * @param $fd[required]
-     * @param $reactor_id[optional]
+     * @param int $fd
+     * @param int $reactor_id
      * @return mixed
      */
-    public function getClientInfo($fd, $reactor_id = null){}
+    public function connection_info(int $fd, int $reactor_id = null){}
 
     /**
-     * @param $start_fd[required]
-     * @param $find_count[optional]
+     * @param int $start_fd
+     * @param int $find_count
      * @return mixed
      */
-    public function getClientList($start_fd, $find_count = null){}
+    public function connection_list(int $start_fd, int $find_count = null){}
 
     /**
-     * @param $ms[required]
-     * @param $callback[required]
-     * @param $param[optional]
+     * @param mixed $message
+     * @param int $dst_worker_id
      * @return mixed
      */
-    public function after($ms, $callback, $param = null){}
+    public function sendMessage($message, int $dst_worker_id){}
 
     /**
-     * @param $ms[required]
-     * @param $callback[required]
+     * @param \Swoole\Process $process
      * @return mixed
      */
-    public function tick($ms, $callback){}
-
-    /**
-     * @param $timer_id[required]
-     * @return mixed
-     */
-    public function clearTimer($timer_id){}
-
-    /**
-     * @param $callback[required]
-     * @return mixed
-     */
-    public function defer($callback){}
-
-    /**
-     * @param $message[required]
-     * @param $dst_worker_id[required]
-     * @return mixed
-     */
-    public function sendMessage($message, $dst_worker_id){}
-
-    /**
-     * @param $process[required]
-     * @return mixed
-     */
-    public function addProcess($process){}
+    public function addProcess(\Swoole\Process $process){}
 
     /**
      * @return mixed
@@ -287,11 +259,41 @@ class Server extends \Swoole\Server
     public function stats(){}
 
     /**
-     * @param $fd[required]
-     * @param $uid[required]
+     * @param int $port
      * @return mixed
      */
-    public function bind($fd, $uid){}
+    public function getSocket(int $port = null){}
 
+    /**
+     * @param int $fd
+     * @param int $uid
+     * @return mixed
+     */
+    public function bind(int $fd, int $uid){}
 
+    /**
+     * @param int $ms
+     * @param callable $callback
+     * @return mixed
+     */
+    public function after(int $ms, callable $callback){}
+
+    /**
+     * @param int $ms
+     * @param callable $callback
+     * @return mixed
+     */
+    public function tick(int $ms, callable $callback){}
+
+    /**
+     * @param int $timer_id
+     * @return mixed
+     */
+    public function clearTimer(int $timer_id){}
+
+    /**
+     * @param callable $callback
+     * @return mixed
+     */
+    public function defer(callable $callback){}
 }

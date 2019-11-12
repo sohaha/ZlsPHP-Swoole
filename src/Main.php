@@ -10,12 +10,14 @@ use ReflectionMethod;
 use swoole\Http\Response;
 use Swoole\Http\Server as httpServer;
 use swoole\Process as swooleProcess;
+use Swoole\Coroutine as c;
 use Swoole\Runtime;
 use Swoole\Server;
 use Swoole\Websocket\Server as websocketServer;
 use Throwable;
 use Z;
 use Zls\Session\File as SessionFile;
+use Zls\Swoole\Coroutine\Coroutine;
 use Zls_Config;
 use Zls\Swoole\Http;
 use Zls\Swoole\Event;
@@ -23,6 +25,7 @@ use Zls\Swoole\Event;
 class Main
 {
     use Utils;
+    public $masterPid = 0;
     public $serverOn = [];
     public $hotLoad = false;
     public $config;
@@ -35,10 +38,9 @@ class Main
 
     public function __construct()
     {
-        $config        = Z::config();
         $appName       = explode('/', ZLS_PATH);
         $this->appName = Z::arrayGet($appName, count($appName) - 3, 'app');
-        $this->pidFile = Z::realPathMkdir($config->getStorageDirPath() . 'swoole', true, false, false) . 'swooleServer.pid';
+        $this->pidFile = Z::realPathMkdir(Z::tempPath() . 'swoole', true, false, false) . 'swooleServer' . $this->appName . '-' . md5(ZLS_PATH) . '.pid';
         $this->initColor();
     }
 
@@ -55,6 +57,10 @@ class Main
         $this->printLog('Done.', 'green');
     }
 
+    /**
+     * 进程是否已经启动
+     * @return int
+     */
     public function existProcess(): int
     {
         $pid = 0;
@@ -118,7 +124,7 @@ class Main
             if ($enableHttp = Z::arrayGet($this->config, 'enable_http', true)) {
                 $this->setSession();
             }
-            if (Z::arrayGet($this->config, 'enable_coroutine')) {
+            if (Z::arrayGet($this->config, 'enable_coroutine', true)) {
                 Runtime::enableCoroutine();
                 $this->setDbPool();
             }
@@ -190,6 +196,7 @@ class Main
                         }
                     }
                 }
+                $this->tick();
                 $server->start();
             } catch (Throwable $e) {
                 $this->printLog($e->getMessage(), 'red');
@@ -365,5 +372,15 @@ class Main
                 Z::command('kill -USR1 ' . $pid, '', false, false);
             }
         }
+    }
+
+    private function tick()
+    {
+        // 每分钟检查一次 pid 文件是否还存在
+        \Swoole\Timer::tick(60000, function () {
+            if ($this->masterPid && !file_exists($this->pidFile)) {
+                @file_put_contents($this->pidFile, $this->masterPid);
+            }
+        });
     }
 }

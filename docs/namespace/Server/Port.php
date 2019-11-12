@@ -1,19 +1,14 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole\Server;
 
+/**
+ * @since 4.4.8
+ */
 class Port
 {
 
-    private $onConnect;
-    private $onReceive;
-    private $onClose;
-    private $onPacket;
-    private $onBufferFull;
-    private $onBufferEmpty;
-    private $onRequest;
-    private $onHandShake;
-    private $onMessage;
-    private $onOpen;
+    // property of the class Port
     public $host;
     public $port;
     public $type;
@@ -22,27 +17,26 @@ class Port
     public $connections;
 
     /**
+     * @param array $settings
      * @return mixed
      */
-    private function __construct(){}
+    public function set(array $settings){}
+
+    /**
+     * @param string $event_name
+     * @param callable $callback
+     * @return mixed
+     */
+    public function on(string $event_name, callable $callback){}
+
+    /**
+     * @param string $event_name
+     * @return mixed
+     */
+    public function getCallback(string $event_name){}
 
     /**
      * @return mixed
      */
-    public function __destruct(){}
-
-    /**
-     * @param $settings[required]
-     * @return mixed
-     */
-    public function set($settings){}
-
-    /**
-     * @param $event_name[required]
-     * @param $callback[required]
-     * @return mixed
-     */
-    public function on($event_name, $callback){}
-
-
+    public function getSocket(){}
 }

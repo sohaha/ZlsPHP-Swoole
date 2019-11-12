@@ -1,9 +1,14 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole;
 
-class ExitException extends \Swoole\Exception
+/**
+ * @since 4.4.8
+ */
+class ExitException extends \Swoole\Exception implements \Throwable
 {
 
+    // property of the class ExitException
     protected $message;
     protected $code;
     protected $file;
@@ -20,12 +25,12 @@ class ExitException extends \Swoole\Exception
     public function getStatus(){}
 
     /**
-     * @param $message[optional]
-     * @param $code[optional]
-     * @param $previous[optional]
+     * @param string $message
+     * @param $code
+     * @param $previous
      * @return mixed
      */
-    public function __construct($message = null, $code = null, $previous = null){}
+    public function __construct(string $message = null, $code = null, $previous = null){}
 
     /**
      * @return mixed
@@ -36,6 +41,4 @@ class ExitException extends \Swoole\Exception
      * @return mixed
      */
     public function __toString(){}
-
-
 }

@@ -1,45 +1,69 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole;
 
+/**
+ * @since 4.4.8
+ */
 class Event
 {
 
 
     /**
-     * @param $fd[required]
-     * @param $read_callback[required]
-     * @param $write_callback[optional]
-     * @param $events[optional]
+     * @param int $fd
+     * @param callable $read_callback
+     * @param callable $write_callback
+     * @param $events
      * @return mixed
      */
-    public static function add($fd, $read_callback, $write_callback = null, $events = null){}
+    public static function add(int $fd, callable $read_callback, callable $write_callback = null, $events = null){}
 
     /**
-     * @param $fd[required]
+     * @param int $fd
      * @return mixed
      */
-    public static function del($fd){}
+    public static function del(int $fd){}
 
     /**
-     * @param $fd[required]
-     * @param $read_callback[optional]
-     * @param $write_callback[optional]
-     * @param $events[optional]
+     * @param int $fd
+     * @param callable $read_callback
+     * @param callable $write_callback
+     * @param $events
      * @return mixed
      */
-    public static function set($fd, $read_callback = null, $write_callback = null, $events = null){}
+    public static function set(int $fd, callable $read_callback = null, callable $write_callback = null, $events = null){}
+
+    /**
+     * @param int $fd
+     * @param $events
+     * @return mixed
+     */
+    public static function isset(int $fd, $events = null){}
 
     /**
      * @return mixed
      */
-    public static function exit(){}
+    public static function dispatch(){}
 
     /**
-     * @param $fd[required]
-     * @param $data[required]
+     * @param callable $callback
      * @return mixed
      */
-    public static function write($fd, $data){}
+    public static function defer(callable $callback){}
+
+    /**
+     * @param callable $callback
+     * @param $before
+     * @return mixed
+     */
+    public static function cycle(callable $callback, $before = null){}
+
+    /**
+     * @param int $fd
+     * @param mixed $data
+     * @return mixed
+     */
+    public static function write(int $fd, $data){}
 
     /**
      * @return mixed
@@ -47,17 +71,12 @@ class Event
     public static function wait(){}
 
     /**
-     * @param $callback[required]
      * @return mixed
      */
-    public static function defer($callback){}
+    public static function rshutdown(){}
 
     /**
-     * @param $callback[required]
-     * @param $before[optional]
      * @return mixed
      */
-    public static function cycle($callback, $before = null){}
-
-
+    public static function exit(){}
 }

@@ -13,7 +13,14 @@ use Z;
 use Zls\Swoole\Coroutine\Coroutine;
 use Zls\Swoole\Coroutine\PhpCoroutine;
 use Zls\Swoole\Coroutine\SwooleCoroutine;
+use Swoole\Coroutine as SwooleCo;
 
+/**
+ * Class Co
+ * @package Zls\Swoole
+ * @method static int id()
+ * @method static bool inCoroutine()
+ */
 class Co
 {
     /** @var PhpCoroutine|SwooleCoroutine */
@@ -26,7 +33,7 @@ class Co
 
     public function getInstance()
     {
-        return self::$co;
+        return self::$co ?: self::instance();
     }
 
     public static function instance($timeout = 5, $sum = 1)
@@ -54,5 +61,14 @@ class Co
     {
         /** @noinspection StaticInvocationViaThisInspection */
         return self::$co->wait($task);
+    }
+
+    public static function __callStatic($name, $arguments)
+    {
+        if (Z::isSwoole()) {
+            return SwooleCoroutine::$name(...$arguments);
+        }
+
+        return PhpCoroutine::$name(...$arguments);
     }
 }

@@ -1,27 +1,32 @@
-<?php
+<?php /** @noinspection ALL - For disable PhpStorm check */
+
 namespace Swoole;
 
-class Table
+/**
+ * @since 4.4.8
+ */
+class Table implements \Iterator, \ArrayAccess, \Countable
 {
-    const TYPE_INT = 1;
-    const TYPE_STRING = 7;
-    const TYPE_FLOAT = 6;
+    // constants of the class Table
+    public const TYPE_INT = 1;
+    public const TYPE_STRING = 7;
+    public const TYPE_FLOAT = 6;
 
 
     /**
-     * @param $table_size[required]
-     * @param $conflict_proportion[optional]
+     * @param $table_size
+     * @param $conflict_proportion
      * @return mixed
      */
     public function __construct($table_size, $conflict_proportion = null){}
 
     /**
-     * @param $name[required]
-     * @param $type[required]
-     * @param $size[optional]
+     * @param string $name
+     * @param $type
+     * @param int $size
      * @return mixed
      */
-    public function column($name, $type, $size = null){}
+    public function column(string $name, $type, int $size = null){}
 
     /**
      * @return mixed
@@ -34,18 +39,18 @@ class Table
     public function destroy(){}
 
     /**
-     * @param $key[required]
-     * @param $value[required]
+     * @param string $key
+     * @param array $value
      * @return mixed
      */
-    public function set($key, $value){}
+    public function set(string $key, array $value){}
 
     /**
-     * @param $key[required]
-     * @param $field[optional]
+     * @param string $key
+     * @param string $field
      * @return mixed
      */
-    public function get($key, $field = null){}
+    public function get(string $key, string $field = null){}
 
     /**
      * @return mixed
@@ -53,38 +58,38 @@ class Table
     public function count(){}
 
     /**
-     * @param $key[required]
+     * @param string $key
      * @return mixed
      */
-    public function del($key){}
+    public function del(string $key){}
 
     /**
-     * @param $key[required]
+     * @param string $key
      * @return mixed
      */
-    public function exists($key){}
+    public function exists(string $key){}
 
     /**
-     * @param $key[required]
+     * @param string $key
      * @return mixed
      */
-    public function exist($key){}
+    public function exist(string $key){}
 
     /**
-     * @param $key[required]
-     * @param $column[required]
-     * @param $incrby[optional]
+     * @param string $key
+     * @param $column
+     * @param $incrby
      * @return mixed
      */
-    public function incr($key, $column, $incrby = null){}
+    public function incr(string $key, $column, $incrby = null){}
 
     /**
-     * @param $key[required]
-     * @param $column[required]
-     * @param $decrby[optional]
+     * @param string $key
+     * @param $column
+     * @param $decrby
      * @return mixed
      */
-    public function decr($key, $column, $decrby = null){}
+    public function decr(string $key, $column, $decrby = null){}
 
     /**
      * @return mixed
@@ -92,29 +97,29 @@ class Table
     public function getMemorySize(){}
 
     /**
-     * @param $offset[required]
+     * @param int $offset
      * @return mixed
      */
-    public function offsetExists($offset){}
+    public function offsetExists(int $offset){}
 
     /**
-     * @param $offset[required]
+     * @param int $offset
      * @return mixed
      */
-    public function offsetGet($offset){}
+    public function offsetGet(int $offset){}
 
     /**
-     * @param $offset[required]
-     * @param $value[required]
+     * @param int $offset
+     * @param $value
      * @return mixed
      */
-    public function offsetSet($offset, $value){}
+    public function offsetSet(int $offset, $value){}
 
     /**
-     * @param $offset[required]
+     * @param int $offset
      * @return mixed
      */
-    public function offsetUnset($offset){}
+    public function offsetUnset(int $offset){}
 
     /**
      * @return mixed
@@ -140,6 +145,4 @@ class Table
      * @return mixed
      */
     public function valid(){}
-
-
 }
