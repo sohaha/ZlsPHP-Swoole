@@ -17,6 +17,6 @@
   },
   "require": {
     "php": ">=7.2",
-    "ext-swoole": ">=4.4",
+    "ext-swoole": ">=4.4"
   }
 }
