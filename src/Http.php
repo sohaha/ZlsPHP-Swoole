@@ -27,7 +27,7 @@ class Http
      */
     public function onRequest($request, $response, $server, $zlsConfig, $config = []): string
     {
-        z::di()->bind(SWOOLE_RESPONSE, static function () use ($response) {
+        Z::di()->bind(SWOOLE_RESPONSE, static function () use ($response) {
             return $response;
         });
         /** @noinspection PhpUndefinedFieldInspection */
@@ -41,18 +41,12 @@ class Http
         foreach ($_HEADER as $key => $value) {
             $_SERVER['HTTP_' . str_replace('-', '_', $key)] = $value;
         }
-        $_SERVER['REMOTE_ADDR'] = z::arrayGet($_SERVER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'REMOTE_ADDR', z::arrayGet($_HEADER, 'X-REAL-IP')));
+        $_SERVER['REMOTE_ADDR'] = Z::arrayGet($_SERVER, 'REMOTE_ADDR', Z::arrayGet($_HEADER, 'REMOTE_ADDR', Z::arrayGet($_HEADER, 'X-REAL-IP')));
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $_SERVER['ZLS_POSTRAW'] = $request->rawContent();
-        $pathInfo               = z::arrayGet($_SERVER, 'PATH_INFO');
+        $pathInfo               = Z::arrayGet($_SERVER, 'PATH_INFO');
         $_SERVER['PATH_INFO']   = $pathInfo;
         $_SESSION               = [];
-        /** @noinspection PhpUndefinedMethodInspection */
-        $zlsConfig->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
-        if (z::arrayGet($config, 'watch') && '1' === z::arrayGet($_GET, '_reload')) {
-            $this->printLog('reload Serve');
-            $server->reload();
-        }
         Z::setGlobalData([
             'server'  => $_SERVER,
             'get'     => $_GET,
@@ -60,12 +54,15 @@ class Http
             'files'   => $_FILES ?? [],
             'cookie'  => $_COOKIE ?? [],
             'session' => $_SESSION ?? [],
-        ]);
+        ], ZLS_PREFIX);
+        /** @noinspection PhpUndefinedMethodInspection */
+        $zlsConfig->setAppDir(ZLS_APP_PATH)->getRequest()->setPathInfo($pathInfo);
+        if (Z::arrayGet($config, 'watch') && '1' === Z::arrayGet($_GET, '_reload')) {
+            $this->printLog('reload Serve');
+            $server->reload();
+        }
         ob_start();
         try {
-            if (z::arrayGet($zlsConfig->getSessionConfig(), 'autostart')) {
-                z::sessionStart();
-            }
             $zlsConfig->bootstrap();
             echo Zls::resultException(static function () {
                 return Zls::runWeb();
@@ -74,7 +71,22 @@ class Http
             echo $e->getMessage();
         }
         $content = ob_get_clean();
-        Z::eventEmit('ZLS_DEFER');
+        Z::defer(function () use ($response) {
+            $headers = Z::getGlobalData(ZLS_PREFIX . 'setHeader', []);
+            var_dump($headers);
+            foreach ($headers as $header) {
+                $header = explode(':', $header);
+                $k      = array_shift($header);
+                $c      = join(':', $header);
+                $response->header($k, trim($c));
+            }
+            $cookies = Z::getGlobalData(ZLS_PREFIX . 'setCookie', []);
+            foreach ($cookies as $cookie) {
+                $response->cookie(...$cookie);
+            }
+        });
+        $zlsConfig->bootstrap();
+        Z::eventEmit(ZLS_PREFIX . 'DEFER');
         Z::resetZls();
 
         return $content;

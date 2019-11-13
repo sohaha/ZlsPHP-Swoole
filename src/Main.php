@@ -48,9 +48,11 @@ class Main
     {
         $this->printLog('Kill...', 'dark_gray');
         if ($pid = $this->existProcess()) {
+            // if (trim(Z::command("kill -9 {$pid}", '', true, false))) {
             preg_match_all('/\d+/', Z::command("pstree -p {$pid}"), $pids);
             $pids = implode(' ', $pids[0]);
             Z::command("kill -9 {$pids}", '', true, false);
+            // }
         } else {
             $this->printLog('Did not find the pid file, please manually view the process and end.', 'red');
         }
@@ -253,6 +255,9 @@ class Main
         /** @var Http $http */
         $http            = Z::factory(Http::class);
         $methodUriSubfix = $zlsConfig->getMethodUriSubfix();
+        if (Z::arrayGet($zlsConfig->getSessionConfig(), 'autostart')) {
+            Z::sessionStart();
+        }
         $server->on('request', function ($request, $response) use ($zlsConfig, $server, $http, $methodUriSubfix) {
             /** @var Response $response */
             $ignore   = ['/robots.txt', '/favicon.ico'];

@@ -10,17 +10,30 @@ class PhpCoroutine extends Coroutine
 {
     /** @var Channel $chan */
     private $chan;
-    private $sum;
+    private $sum = 0;
     private $outtime;
     private $data;
 
     public function __construct($timeout, $sum)
     {
+
     }
 
     public function run($name, \Closure $func): void
     {
-        $this->data[$name] = ['data' => $func()];
+        try {
+            $data = ['data' => $func(), 'err' => null];
+        } catch (\Zls_Exception_Exit $e) {
+            $data = ['data' => $e->getMessage(), 'err' => null];
+        } catch (\Error | \Exception $e) {
+            $data = ['data' => null, 'err' => $e->getMessage()];
+        }
+        if ($name) {
+            $this->data[$name] = $data;
+        } else {
+            $this->data[$this->sum] = $data;
+        }
+        ++$this->sum;
     }
 
     public function data(): array

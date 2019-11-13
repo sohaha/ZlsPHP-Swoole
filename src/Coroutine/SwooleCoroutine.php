@@ -3,9 +3,11 @@ declare (strict_types=1);
 
 namespace Zls\Swoole\Coroutine;
 
+use Exception;
 use Swoole\Coroutine as c;
 use Swoole\Coroutine\Channel;
 use Z;
+use Zls\Swoole\Context;
 use Zls\Swoole\SwooleException;
 
 class SwooleCoroutine extends Coroutine
@@ -52,9 +54,9 @@ class SwooleCoroutine extends Coroutine
                 $res = $this->chan->push(['name' => $name, 'data' => $func()], $this->outtime);
             } catch (\Zls_Exception_Exit $e) {
                 $res = $this->chan->push(['name' => $name, 'data' => $e->getMessage()], $this->outtime);
-            } catch (\Error | \Exception $e) {
+            } catch (\Error | Exception $e) {
                 $this->errorLog('CoroutineError', $e->getMessage());
-                $res = $this->chan->push(['name' => $name, 'data' => false, 'err' => $e], $this->outtime);
+                $res = $this->chan->push(['name' => $name, 'data' => null, 'err' => $e], $this->outtime);
             }
             if ($res === false) {
                 z::log('Channel full: ' . $this->chan->errCode);
@@ -66,7 +68,6 @@ class SwooleCoroutine extends Coroutine
     {
         $data = [];
         for ($i = 0; $i < $this->sum; $i++) {
-            $t = time();
             /** @noinspection PhpMethodParametersCountMismatchInspection */
             $res = $this->chan->pop($this->outtime);
             $err = null;
@@ -74,19 +75,19 @@ class SwooleCoroutine extends Coroutine
                 break;
             }
             if (Z::arrayKeyExists('err', $res)) {
-                Z::log($res, 'swoole/err');
-                /** @var \Exception $e */
+                // Z::log($res, 'swoole/err');
+                /** @var Exception $e */
                 $e   = $res['err'];
                 $err = method_exists($e, 'render') ? $e->render() : $e->getMessage();
-                /** @noinspection PhpUnhandledExceptionInspection */
-                throw new SwooleException($err, 500, 'Exception', $e->getFile(), $e->getLine());
+                // /** @noinspection PhpUnhandledExceptionInspection */
+                // throw new SwooleException($err, 500, 'Exception', $e->getFile(), $e->getLine());
             }
-            $data[$res['name']] = ['data' => $res['data'], 'err' => $err, 'time' => time() - $t];
+            $data[$res['name']] = ['data' => $res['data'], 'err' => $err];
         }
         $keys   = array_keys($data);
         $errKey = array_diff($this->data, $keys);
         foreach ($errKey as $v) {
-            $data[$v] = ['data' => null, 'err' => 'timeout', 'time' => time() - $t];
+            $data[$v] = ['data' => null, 'err' => 'timeout'];
         }
 
         return $data;
@@ -99,7 +100,10 @@ class SwooleCoroutine extends Coroutine
 
     public function go(\Closure $func)
     {
-        c::create($func);
+        c::create(function ()use ($func){
+            Context::copy(c::getPcid());
+            $func();
+        });
     }
 
     public static function id(): int
