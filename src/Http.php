@@ -73,7 +73,6 @@ class Http
         $content = ob_get_clean();
         Z::defer(function () use ($response) {
             $headers = Z::getGlobalData(ZLS_PREFIX . 'setHeader', []);
-            var_dump($headers);
             foreach ($headers as $header) {
                 $header = explode(':', $header);
                 $k      = array_shift($header);
