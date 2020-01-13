@@ -18,8 +18,8 @@ use Throwable;
 use Z;
 use Zls\Session\File as SessionFile;
 use Zls\Swoole\Coroutine\Coroutine;
-use Zls_Config;
 use Zls\Swoole\Http;
+use Zls_Config;
 use Zls\Swoole\Event;
 
 class Main
@@ -48,11 +48,11 @@ class Main
     {
         $this->printLog('Kill...', 'dark_gray');
         if ($pid = $this->existProcess()) {
-            // if (trim(Z::command("kill -9 {$pid}", '', true, false))) {
-            preg_match_all('/\d+/', Z::command("pstree -p {$pid}"), $pids);
-            $pids = implode(' ', $pids[0]);
-            Z::command("kill -9 {$pids}", '', true, false);
-            // }
+            if (trim(Z::command("kill -9 {$pid}", '', true, false))) {
+                preg_match_all('/\d+/', Z::command("pstree -p {$pid}"), $pids);
+                $pids = implode(' ', $pids[0]);
+                Z::command("kill -9 {$pids}", '', true, false);
+            }
         } else {
             $this->printLog('Did not find the pid file, please manually view the process and end.', 'red');
         }
@@ -80,28 +80,29 @@ class Main
 
     public function stop($args): void
     {
+        //Z::command("kill -15 {$pid}", '', true, false)
         $this->printLog('Stoping...', 'dark_gray');
         if ($pid = $this->existProcess()) {
-            swooleProcess::kill($pid); // Z::command("kill -15 {$pid}", '', true, false);
+            swooleProcess::kill($pid);
             $time   = time() + 15;
             $status = true;
             while ($status) {
                 $pid = $this->existProcess();
                 if (!$pid) {
                     $status = false;
+                    $this->printLog('Done.', 'green');
                 } elseif (time() >= $time) {
                     $status = false;
                     $this->printLog('pid: ' . $pid . ', stop failure, please try again!', 'red');
                 }
             }
         }
-        $this->printLog('Done.', 'green');
     }
 
     public function status(): void
     {
         if ($pid = $this->existProcess()) {
-            $this->printLog("swoole is running, PID : {$pid}.");
+            $this->printLog("swoole is running, PID : {$pid}");
         } else {
             $this->printLog('swoole is not running');
         }
@@ -152,13 +153,6 @@ class Main
                 //         $lines[] = $this->webService($host, $port, $server, $zlsConfig);
                 //     }
                 // } else {
-                $server  = new httpServer($host, $port);
-                $lines[] = $this->webService($host, $port, $server, $zlsConfig);
-                // }
-                $this->server = $server;
-                $zlsConfig->setZMethods('swoole', function () {
-                    return $this->server;
-                });
                 $defaultProperties = [
                     'pname'                 => 'zls_swoole_' . $this->appName,
                     'document_root'         => Z::realPath(ZLS_PATH),
@@ -166,6 +160,14 @@ class Main
                     'daemonize'             => $daemonize,
                 ];
                 $setProperties     = $setProperties ? array_merge($setProperties, $defaultProperties) : $defaultProperties;
+                [$server, $serverTip] = $this->webService($host, $port, $setProperties, $zlsConfig);
+                $lines[] = $serverTip;
+                // }
+                $this->server = $server;
+                Z::initSwoole($this->server);
+                // $zlsConfig->setZMethods('swoole', function () {
+                //     return $this->server;
+                // });
                 $this->setProcessTitle($defaultProperties['pname']);
                 $this->staticLocations = ($setProperties['enable_static_handler']) ? Z::arrayGet($setProperties, 'static_handler_locations', []) : [];
                 $server->set(['pid_file' => $this->pidFile] + $setProperties);
@@ -246,14 +248,19 @@ class Main
         // $pool = new Pool();
     }
 
-    private function webService($host, $port, $server, Zls_Config $zlsConfig): string
+    private function webService($host, $port, $setProperties, Zls_Config $zlsConfig): array
     {
+        /** @var Http $http */
+        $http = Z::factory(Http::class);
         /** @var Server $server */
+        [$server, $isSsl] = $http->newHttpServer($host, $port, $setProperties);
+       if(!$isSsl){
+            $this->config['set_properties']['open_http2_protocol'] = false;
+       }
+
         $zlsConfig->setZMethods('swooleBootstrap', function ($appdir) {
             $this->bootstrap($appdir);
         });
-        /** @var Http $http */
-        $http            = Z::factory(Http::class);
         $methodUriSubfix = $zlsConfig->getMethodUriSubfix();
         if (Z::arrayGet($zlsConfig->getSessionConfig(), 'autostart')) {
             Z::sessionStart();
@@ -283,17 +290,18 @@ class Main
                     $response->status(404);
                     $response->end();
                 }
-            } else {
-                $content = $http->onRequest($request, $response, $server, $zlsConfig, $this->config);
-                if ((bool)$content) {
-                    $response->write($content);
-                }
-                $response->end();
-            }
-        });
-        $url = 'http://' . ($host === '0.0.0.0' ? '127.0.0.1' : $host) . ':' . $port;
 
-        return $this->printStr('[ Swoole Web ]', 'blue', '') . ': ' . $url;
+                return;
+            }
+            $content = $http->onRequest($request, $response, $server, $zlsConfig, $this->config);
+            if ((bool)$content) {
+                $response->write($content);
+            }
+            $response->end();
+        });
+        $url = ($isSsl ? 'https://' : 'http://') . ($host === '0.0.0.0' ? '127.0.0.1' : $host) . ':' . $port;
+
+        return [$server, $this->printStr('[ Swoole Web ]', 'blue', '') . ': ' . $url];
     }
 
     private function LocaFile($pathinfo): bool
@@ -374,6 +382,7 @@ class Main
                 /** @noinspection PhpComposerExtensionStubsInspection */
                 posix_kill((int)$pid, SIGUSR1);
             } else {
+                // (trim(Z::command("kill -10 {$pid}", '', true, false)))
                 Z::command('kill -USR1 ' . $pid, '', false, false);
             }
         }

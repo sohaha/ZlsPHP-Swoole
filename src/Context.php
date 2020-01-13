@@ -12,9 +12,9 @@ class Context
     public static function set(string $id, &$value)
     {
         if (Co::inCoroutine()) {
-            SwCoroutine::getContext()[$id] = $value;
+            SwCoroutine::getContext()[$id] = &$value;
         } else {
-            self::$noCoContext[$id] = $value;
+            self::$noCoContext[$id] = &$value;
         }
 
         return $value;
@@ -31,6 +31,11 @@ class Context
         }
 
         return self::$noCoContext[$id] ?? $default;
+    }
+
+    public function destroyed()
+    {
+
     }
 
     public static function has(string $id, $coroutineId = null)
@@ -60,5 +65,10 @@ class Context
         $from    = SwCoroutine::getContext($fromCoroutineId);
         $current = SwCoroutine::getContext();
         $current->exchangeArray($keys ? array_fill_keys($keys, $from->getArrayCopy()) : $from->getArrayCopy());
+    }
+
+    public static function getPcid()
+    {
+        return SwCoroutine::getPcid();
     }
 }
